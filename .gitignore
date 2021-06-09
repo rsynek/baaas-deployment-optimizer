@@ -1,0 +1,14 @@
+/target
+/build
+/local
+
+# Hidden files.
+/.*
+!.gitignore
+!.mvn
+
+# Eclipse, Netbeans and IntelliJ files.
+/nbproject
+/*.ipr
+/*.iws
+/*.iml
