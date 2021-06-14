@@ -1,28 +1,23 @@
 package org.kie.baaas.domain;
 
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
-import org.optaplanner.core.api.domain.lookup.PlanningId;
-
-public class OsdCluster {
-
-    @PlanningId
-    private long id;
+@JsonIdentityInfo(generator= ObjectIdGenerators.PropertyGenerator.class, property="id")
+public class OsdCluster extends AbstractIdentifiable {
 
     private double costPerHour;
 
-    private List<ResourceCapacity> resourceCapacities;
+    public OsdCluster() {
+        // Required by Jackson.
+    }
 
     public OsdCluster(long id, double costPerHour) {
-        this.id = id;
+        super(id);
         this.costPerHour = costPerHour;
     }
 
     public double getCostPerHour() {
         return costPerHour;
-    }
-
-    public long getId() {
-        return id;
     }
 }

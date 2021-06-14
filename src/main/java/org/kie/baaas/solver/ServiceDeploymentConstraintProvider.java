@@ -16,8 +16,8 @@ public class ServiceDeploymentConstraintProvider implements ConstraintProvider {
     @Override
     public Constraint[] defineConstraints(ConstraintFactory constraintFactory) {
         return new Constraint[] {
-                maximumCapacity(constraintFactory),
-                cost(constraintFactory)
+                maximumCapacity(constraintFactory)
+                //cost(constraintFactory)
         };
     }
 

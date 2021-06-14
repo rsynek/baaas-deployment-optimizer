@@ -21,8 +21,8 @@ public class ServiceDeploymentConstraintProviderTest {
 
     @Test
     void maximumCapacity() {
-        Resource cpu = new Resource();
-        Resource memory = new Resource();
+        Resource cpu = new Resource(1L);
+        Resource memory = new Resource(2L);
 
         OsdCluster cluster1 = new OsdCluster(1L, 0.5);
         OsdCluster cluster2 = new OsdCluster(2L, 0.5);
@@ -32,9 +32,9 @@ public class ServiceDeploymentConstraintProviderTest {
         ResourceCapacity cpuCapacityCluster2 = new ResourceCapacity(cluster2, cpu, 10L);
         ResourceCapacity memoryCapacityCluster2 = new ResourceCapacity(cluster2, cpu, 10L);
 
-        Service service1 = new Service("service-1");
-        Service service2 = new Service("service-2");
-        Service service3 = new Service("service-3");
+        Service service1 = new Service(1L,"service-1");
+        Service service2 = new Service(2L, "service-2");
+        Service service3 = new Service(3L, "service-3");
         service1.setOsdCluster(cluster1);
         service2.setOsdCluster(cluster2);
         service3.setOsdCluster(cluster2);

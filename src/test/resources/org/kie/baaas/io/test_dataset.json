@@ -1,0 +1,757 @@
+{
+  "openShiftClusters" : [ {
+    "cloudProvider" : "GOOGLE",
+    "openShiftNodes" : [ {
+      "nodeType" : "MASTER",
+      "cloudNode" : {
+        "name" : "e2-standard-4",
+        "cloudProvider" : "GOOGLE",
+        "cpuCores" : 4,
+        "memoryGiBs" : 16,
+        "cloudInstanceType" : "GENERAL",
+        "cost" : 0.172668
+      },
+      "cost" : 0.172668
+    }, {
+      "nodeType" : "MASTER",
+      "cloudNode" : {
+        "name" : "e2-standard-4",
+        "cloudProvider" : "GOOGLE",
+        "cpuCores" : 4,
+        "memoryGiBs" : 16,
+        "cloudInstanceType" : "GENERAL",
+        "cost" : 0.172668
+      },
+      "cost" : 0.172668
+    }, {
+      "nodeType" : "MASTER",
+      "cloudNode" : {
+        "name" : "e2-standard-4",
+        "cloudProvider" : "GOOGLE",
+        "cpuCores" : 4,
+        "memoryGiBs" : 16,
+        "cloudInstanceType" : "GENERAL",
+        "cost" : 0.172668
+      },
+      "cost" : 0.172668
+    }, {
+      "nodeType" : "WORKER",
+      "cloudNode" : {
+        "name" : "e2-standard-2",
+        "cloudProvider" : "GOOGLE",
+        "cpuCores" : 2,
+        "memoryGiBs" : 8,
+        "cloudInstanceType" : "GENERAL",
+        "cost" : 0.086334
+      },
+      "cost" : 0.086334
+    }, {
+      "nodeType" : "WORKER",
+      "cloudNode" : {
+        "name" : "e2-standard-4",
+        "cloudProvider" : "GOOGLE",
+        "cpuCores" : 4,
+        "memoryGiBs" : 16,
+        "cloudInstanceType" : "GENERAL",
+        "cost" : 0.172668
+      },
+      "cost" : 0.172668
+    }, {
+      "nodeType" : "WORKER",
+      "cloudNode" : {
+        "name" : "e2-standard-2",
+        "cloudProvider" : "GOOGLE",
+        "cpuCores" : 2,
+        "memoryGiBs" : 8,
+        "cloudInstanceType" : "GENERAL",
+        "cost" : 0.086334
+      },
+      "cost" : 0.086334
+    }, {
+      "nodeType" : "WORKER",
+      "cloudNode" : {
+        "name" : "e2-standard-8",
+        "cloudProvider" : "GOOGLE",
+        "cpuCores" : 8,
+        "memoryGiBs" : 32,
+        "cloudInstanceType" : "GENERAL",
+        "cost" : 0.345336
+      },
+      "cost" : 0.345336
+    } ],
+    "cost" : 1.2086759999999999,
+    "totalCpuCores" : 16,
+    "totalMemoryGiBs" : 64
+  }, {
+    "cloudProvider" : "GOOGLE",
+    "openShiftNodes" : [ {
+      "nodeType" : "MASTER",
+      "cloudNode" : {
+        "name" : "e2-standard-4",
+        "cloudProvider" : "GOOGLE",
+        "cpuCores" : 4,
+        "memoryGiBs" : 16,
+        "cloudInstanceType" : "GENERAL",
+        "cost" : 0.172668
+      },
+      "cost" : 0.172668
+    }, {
+      "nodeType" : "MASTER",
+      "cloudNode" : {
+        "name" : "e2-standard-4",
+        "cloudProvider" : "GOOGLE",
+        "cpuCores" : 4,
+        "memoryGiBs" : 16,
+        "cloudInstanceType" : "GENERAL",
+        "cost" : 0.172668
+      },
+      "cost" : 0.172668
+    }, {
+      "nodeType" : "MASTER",
+      "cloudNode" : {
+        "name" : "e2-standard-4",
+        "cloudProvider" : "GOOGLE",
+        "cpuCores" : 4,
+        "memoryGiBs" : 16,
+        "cloudInstanceType" : "GENERAL",
+        "cost" : 0.172668
+      },
+      "cost" : 0.172668
+    }, {
+      "nodeType" : "WORKER",
+      "cloudNode" : {
+        "name" : "e2-standard-8",
+        "cloudProvider" : "GOOGLE",
+        "cpuCores" : 8,
+        "memoryGiBs" : 32,
+        "cloudInstanceType" : "GENERAL",
+        "cost" : 0.345336
+      },
+      "cost" : 0.345336
+    }, {
+      "nodeType" : "WORKER",
+      "cloudNode" : {
+        "name" : "e2-standard-4",
+        "cloudProvider" : "GOOGLE",
+        "cpuCores" : 4,
+        "memoryGiBs" : 16,
+        "cloudInstanceType" : "GENERAL",
+        "cost" : 0.172668
+      },
+      "cost" : 0.172668
+    }, {
+      "nodeType" : "WORKER",
+      "cloudNode" : {
+        "name" : "e2-standard-2",
+        "cloudProvider" : "GOOGLE",
+        "cpuCores" : 2,
+        "memoryGiBs" : 8,
+        "cloudInstanceType" : "GENERAL",
+        "cost" : 0.086334
+      },
+      "cost" : 0.086334
+    } ],
+    "cost" : 1.122342,
+    "totalCpuCores" : 14,
+    "totalMemoryGiBs" : 56
+  }, {
+    "cloudProvider" : "GOOGLE",
+    "openShiftNodes" : [ {
+      "nodeType" : "MASTER",
+      "cloudNode" : {
+        "name" : "e2-standard-4",
+        "cloudProvider" : "GOOGLE",
+        "cpuCores" : 4,
+        "memoryGiBs" : 16,
+        "cloudInstanceType" : "GENERAL",
+        "cost" : 0.172668
+      },
+      "cost" : 0.172668
+    }, {
+      "nodeType" : "MASTER",
+      "cloudNode" : {
+        "name" : "e2-standard-4",
+        "cloudProvider" : "GOOGLE",
+        "cpuCores" : 4,
+        "memoryGiBs" : 16,
+        "cloudInstanceType" : "GENERAL",
+        "cost" : 0.172668
+      },
+      "cost" : 0.172668
+    }, {
+      "nodeType" : "MASTER",
+      "cloudNode" : {
+        "name" : "e2-standard-4",
+        "cloudProvider" : "GOOGLE",
+        "cpuCores" : 4,
+        "memoryGiBs" : 16,
+        "cloudInstanceType" : "GENERAL",
+        "cost" : 0.172668
+      },
+      "cost" : 0.172668
+    }, {
+      "nodeType" : "WORKER",
+      "cloudNode" : {
+        "name" : "e2-standard-4",
+        "cloudProvider" : "GOOGLE",
+        "cpuCores" : 4,
+        "memoryGiBs" : 16,
+        "cloudInstanceType" : "GENERAL",
+        "cost" : 0.172668
+      },
+      "cost" : 0.172668
+    }, {
+      "nodeType" : "WORKER",
+      "cloudNode" : {
+        "name" : "e2-standard-2",
+        "cloudProvider" : "GOOGLE",
+        "cpuCores" : 2,
+        "memoryGiBs" : 8,
+        "cloudInstanceType" : "GENERAL",
+        "cost" : 0.086334
+      },
+      "cost" : 0.086334
+    }, {
+      "nodeType" : "WORKER",
+      "cloudNode" : {
+        "name" : "e2-standard-2",
+        "cloudProvider" : "GOOGLE",
+        "cpuCores" : 2,
+        "memoryGiBs" : 8,
+        "cloudInstanceType" : "GENERAL",
+        "cost" : 0.086334
+      },
+      "cost" : 0.086334
+    } ],
+    "cost" : 0.86334,
+    "totalCpuCores" : 8,
+    "totalMemoryGiBs" : 32
+  }, {
+    "cloudProvider" : "GOOGLE",
+    "openShiftNodes" : [ {
+      "nodeType" : "MASTER",
+      "cloudNode" : {
+        "name" : "e2-standard-4",
+        "cloudProvider" : "GOOGLE",
+        "cpuCores" : 4,
+        "memoryGiBs" : 16,
+        "cloudInstanceType" : "GENERAL",
+        "cost" : 0.172668
+      },
+      "cost" : 0.172668
+    }, {
+      "nodeType" : "MASTER",
+      "cloudNode" : {
+        "name" : "e2-standard-4",
+        "cloudProvider" : "GOOGLE",
+        "cpuCores" : 4,
+        "memoryGiBs" : 16,
+        "cloudInstanceType" : "GENERAL",
+        "cost" : 0.172668
+      },
+      "cost" : 0.172668
+    }, {
+      "nodeType" : "MASTER",
+      "cloudNode" : {
+        "name" : "e2-standard-4",
+        "cloudProvider" : "GOOGLE",
+        "cpuCores" : 4,
+        "memoryGiBs" : 16,
+        "cloudInstanceType" : "GENERAL",
+        "cost" : 0.172668
+      },
+      "cost" : 0.172668
+    }, {
+      "nodeType" : "WORKER",
+      "cloudNode" : {
+        "name" : "e2-standard-4",
+        "cloudProvider" : "GOOGLE",
+        "cpuCores" : 4,
+        "memoryGiBs" : 16,
+        "cloudInstanceType" : "GENERAL",
+        "cost" : 0.172668
+      },
+      "cost" : 0.172668
+    }, {
+      "nodeType" : "WORKER",
+      "cloudNode" : {
+        "name" : "e2-standard-2",
+        "cloudProvider" : "GOOGLE",
+        "cpuCores" : 2,
+        "memoryGiBs" : 8,
+        "cloudInstanceType" : "GENERAL",
+        "cost" : 0.086334
+      },
+      "cost" : 0.086334
+    }, {
+      "nodeType" : "WORKER",
+      "cloudNode" : {
+        "name" : "e2-standard-8",
+        "cloudProvider" : "GOOGLE",
+        "cpuCores" : 8,
+        "memoryGiBs" : 32,
+        "cloudInstanceType" : "GENERAL",
+        "cost" : 0.345336
+      },
+      "cost" : 0.345336
+    }, {
+      "nodeType" : "WORKER",
+      "cloudNode" : {
+        "name" : "e2-standard-8",
+        "cloudProvider" : "GOOGLE",
+        "cpuCores" : 8,
+        "memoryGiBs" : 32,
+        "cloudInstanceType" : "GENERAL",
+        "cost" : 0.345336
+      },
+      "cost" : 0.345336
+    } ],
+    "cost" : 1.4676779999999998,
+    "totalCpuCores" : 22,
+    "totalMemoryGiBs" : 88
+  } ],
+  "serviceDeploymentSchedule" : {
+    "osdClusters" : [ {
+      "id" : 5,
+      "costPerHour" : 1.2086759999999999
+    }, {
+      "id" : 14,
+      "costPerHour" : 1.4676779999999998
+    }, {
+      "id" : 8,
+      "costPerHour" : 1.122342
+    }, {
+      "id" : 11,
+      "costPerHour" : 0.86334
+    } ],
+    "services" : [ {
+      "id" : 71,
+      "name" : "decision-bfdb2c20-9b1b-4e1b-9a16-ccfd2380a939",
+      "osdCluster" : null,
+      "originalOsdCluster" : null
+    }, {
+      "id" : 86,
+      "name" : "decision-3fc35b33-e697-4c9e-854d-66eb41d0b601",
+      "osdCluster" : null,
+      "originalOsdCluster" : null
+    }, {
+      "id" : 68,
+      "name" : "decision-0ba79e27-5610-4e6f-8f94-3b7a9fcd0c5e",
+      "osdCluster" : null,
+      "originalOsdCluster" : null
+    }, {
+      "id" : 53,
+      "name" : "decision-a316c310-5648-4e38-b893-15acdf27bf52",
+      "osdCluster" : null,
+      "originalOsdCluster" : null
+    }, {
+      "id" : 50,
+      "name" : "decision-5ec54ef3-d87d-4360-8a11-9866bc13c92a",
+      "osdCluster" : null,
+      "originalOsdCluster" : null
+    }, {
+      "id" : 56,
+      "name" : "decision-6f5b9ced-4f85-42ad-89ea-42e6131dfc70",
+      "osdCluster" : null,
+      "originalOsdCluster" : null
+    }, {
+      "id" : 38,
+      "name" : "decision-15e74259-ef46-4266-91ea-66d92fa54cad",
+      "osdCluster" : null,
+      "originalOsdCluster" : null
+    }, {
+      "id" : 23,
+      "name" : "decision-a0716889-8ebf-4075-9364-c57f57bb99cf",
+      "osdCluster" : null,
+      "originalOsdCluster" : null
+    }, {
+      "id" : 74,
+      "name" : "decision-db306e99-f02a-4157-9c2c-00b84290a802",
+      "osdCluster" : null,
+      "originalOsdCluster" : null
+    }, {
+      "id" : 20,
+      "name" : "decision-e7bb2e4a-4774-440f-947f-c858b0288644",
+      "osdCluster" : null,
+      "originalOsdCluster" : null
+    }, {
+      "id" : 65,
+      "name" : "decision-cf11d49c-ff38-4049-b885-a05e61408238",
+      "osdCluster" : null,
+      "originalOsdCluster" : null
+    }, {
+      "id" : 62,
+      "name" : "decision-3db27001-7e0a-4306-a5e0-45ab01d31e60",
+      "osdCluster" : null,
+      "originalOsdCluster" : null
+    }, {
+      "id" : 29,
+      "name" : "decision-10e3073a-ceec-4262-b573-4f26c05c92f9",
+      "osdCluster" : null,
+      "originalOsdCluster" : null
+    }, {
+      "id" : 80,
+      "name" : "decision-97d42485-352e-4cee-8055-8449438be654",
+      "osdCluster" : null,
+      "originalOsdCluster" : null
+    }, {
+      "id" : 17,
+      "name" : "decision-c98848a4-0d56-4880-8c1f-d4fabd92b2ef",
+      "osdCluster" : null,
+      "originalOsdCluster" : null
+    }, {
+      "id" : 32,
+      "name" : "decision-18a582d7-cfb2-4ae4-ace4-0aa092179232",
+      "osdCluster" : null,
+      "originalOsdCluster" : null
+    }, {
+      "id" : 47,
+      "name" : "decision-c858ecc4-20ee-460d-b827-06d113e5a83e",
+      "osdCluster" : null,
+      "originalOsdCluster" : null
+    }, {
+      "id" : 83,
+      "name" : "decision-83c92597-f283-48c1-9faa-7bf2b4b88273",
+      "osdCluster" : null,
+      "originalOsdCluster" : null
+    }, {
+      "id" : 35,
+      "name" : "decision-b3627393-c2a7-47c4-af6a-c0b1bf5d6b1b",
+      "osdCluster" : null,
+      "originalOsdCluster" : null
+    }, {
+      "id" : 89,
+      "name" : "decision-558eb40a-f7f9-4b61-8dd9-cd5ceda60384",
+      "osdCluster" : null,
+      "originalOsdCluster" : null
+    }, {
+      "id" : 77,
+      "name" : "decision-c561625a-b0ea-4554-a8f5-6a823f8374f1",
+      "osdCluster" : null,
+      "originalOsdCluster" : null
+    }, {
+      "id" : 59,
+      "name" : "decision-a01117d0-35fe-469b-bedb-7bd813ed8300",
+      "osdCluster" : null,
+      "originalOsdCluster" : null
+    }, {
+      "id" : 44,
+      "name" : "decision-c2b3688f-8954-4ba6-88c4-07c80362673b",
+      "osdCluster" : null,
+      "originalOsdCluster" : null
+    }, {
+      "id" : 26,
+      "name" : "decision-55c541ae-873f-4cce-9f52-2053e132fc24",
+      "osdCluster" : null,
+      "originalOsdCluster" : null
+    }, {
+      "id" : 41,
+      "name" : "decision-4c507ed3-df38-4adb-bf1b-bc73151abf11",
+      "osdCluster" : null,
+      "originalOsdCluster" : null
+    } ],
+    "resources" : [ {
+      "id" : 3
+    }, {
+      "id" : 4
+    } ],
+    "resourceCapacities" : [ {
+      "id" : 6,
+      "osdCluster" : 5,
+      "resource" : 3,
+      "capacity" : 14400000000
+    }, {
+      "id" : 7,
+      "osdCluster" : 5,
+      "resource" : 4,
+      "capacity" : 61847529062
+    }, {
+      "id" : 15,
+      "osdCluster" : 14,
+      "resource" : 3,
+      "capacity" : 19800000000
+    }, {
+      "id" : 16,
+      "osdCluster" : 14,
+      "resource" : 4,
+      "capacity" : 85040352460
+    }, {
+      "id" : 9,
+      "osdCluster" : 8,
+      "resource" : 3,
+      "capacity" : 12600000000
+    }, {
+      "id" : 10,
+      "osdCluster" : 8,
+      "resource" : 4,
+      "capacity" : 54116587929
+    }, {
+      "id" : 12,
+      "osdCluster" : 11,
+      "resource" : 3,
+      "capacity" : 7200000000
+    }, {
+      "id" : 13,
+      "osdCluster" : 11,
+      "resource" : 4,
+      "capacity" : 30923764531
+    } ],
+    "resourceRequirements" : [ {
+      "id" : 72,
+      "service" : 71,
+      "resource" : 3,
+      "amount" : 930442745
+    }, {
+      "id" : 73,
+      "service" : 71,
+      "resource" : 4,
+      "amount" : 431551884
+    }, {
+      "id" : 87,
+      "service" : 86,
+      "resource" : 3,
+      "amount" : 415568447
+    }, {
+      "id" : 88,
+      "service" : 86,
+      "resource" : 4,
+      "amount" : 318655656
+    }, {
+      "id" : 69,
+      "service" : 68,
+      "resource" : 3,
+      "amount" : 1896698300
+    }, {
+      "id" : 70,
+      "service" : 68,
+      "resource" : 4,
+      "amount" : 372679205
+    }, {
+      "id" : 54,
+      "service" : 53,
+      "resource" : 3,
+      "amount" : 1805304854
+    }, {
+      "id" : 55,
+      "service" : 53,
+      "resource" : 4,
+      "amount" : 453743786
+    }, {
+      "id" : 51,
+      "service" : 50,
+      "resource" : 3,
+      "amount" : 1907175883
+    }, {
+      "id" : 52,
+      "service" : 50,
+      "resource" : 4,
+      "amount" : 239866027
+    }, {
+      "id" : 57,
+      "service" : 56,
+      "resource" : 3,
+      "amount" : 789381906
+    }, {
+      "id" : 58,
+      "service" : 56,
+      "resource" : 4,
+      "amount" : 373718184
+    }, {
+      "id" : 39,
+      "service" : 38,
+      "resource" : 3,
+      "amount" : 189271725
+    }, {
+      "id" : 40,
+      "service" : 38,
+      "resource" : 4,
+      "amount" : 592606116
+    }, {
+      "id" : 24,
+      "service" : 23,
+      "resource" : 3,
+      "amount" : 661055312
+    }, {
+      "id" : 25,
+      "service" : 23,
+      "resource" : 4,
+      "amount" : 596456000
+    }, {
+      "id" : 75,
+      "service" : 74,
+      "resource" : 3,
+      "amount" : 133015843
+    }, {
+      "id" : 76,
+      "service" : 74,
+      "resource" : 4,
+      "amount" : 234659974
+    }, {
+      "id" : 21,
+      "service" : 20,
+      "resource" : 3,
+      "amount" : 1156571201
+    }, {
+      "id" : 22,
+      "service" : 20,
+      "resource" : 4,
+      "amount" : 398332633
+    }, {
+      "id" : 66,
+      "service" : 65,
+      "resource" : 3,
+      "amount" : 479755763
+    }, {
+      "id" : 67,
+      "service" : 65,
+      "resource" : 4,
+      "amount" : 485879803
+    }, {
+      "id" : 63,
+      "service" : 62,
+      "resource" : 3,
+      "amount" : 1678597949
+    }, {
+      "id" : 64,
+      "service" : 62,
+      "resource" : 4,
+      "amount" : 243269571
+    }, {
+      "id" : 30,
+      "service" : 29,
+      "resource" : 3,
+      "amount" : 1371639362
+    }, {
+      "id" : 31,
+      "service" : 29,
+      "resource" : 4,
+      "amount" : 270451877
+    }, {
+      "id" : 81,
+      "service" : 80,
+      "resource" : 3,
+      "amount" : 987176717
+    }, {
+      "id" : 82,
+      "service" : 80,
+      "resource" : 4,
+      "amount" : 523688124
+    }, {
+      "id" : 18,
+      "service" : 17,
+      "resource" : 3,
+      "amount" : 1275749187
+    }, {
+      "id" : 19,
+      "service" : 17,
+      "resource" : 4,
+      "amount" : 326642924
+    }, {
+      "id" : 33,
+      "service" : 32,
+      "resource" : 3,
+      "amount" : 368045172
+    }, {
+      "id" : 34,
+      "service" : 32,
+      "resource" : 4,
+      "amount" : 367305054
+    }, {
+      "id" : 48,
+      "service" : 47,
+      "resource" : 3,
+      "amount" : 1790836327
+    }, {
+      "id" : 49,
+      "service" : 47,
+      "resource" : 4,
+      "amount" : 355255247
+    }, {
+      "id" : 84,
+      "service" : 83,
+      "resource" : 3,
+      "amount" : 1302177814
+    }, {
+      "id" : 85,
+      "service" : 83,
+      "resource" : 4,
+      "amount" : 299356622
+    }, {
+      "id" : 36,
+      "service" : 35,
+      "resource" : 3,
+      "amount" : 1498695911
+    }, {
+      "id" : 37,
+      "service" : 35,
+      "resource" : 4,
+      "amount" : 566636814
+    }, {
+      "id" : 90,
+      "service" : 89,
+      "resource" : 3,
+      "amount" : 1379569451
+    }, {
+      "id" : 91,
+      "service" : 89,
+      "resource" : 4,
+      "amount" : 574423507
+    }, {
+      "id" : 78,
+      "service" : 77,
+      "resource" : 3,
+      "amount" : 529429794
+    }, {
+      "id" : 79,
+      "service" : 77,
+      "resource" : 4,
+      "amount" : 314986423
+    }, {
+      "id" : 60,
+      "service" : 59,
+      "resource" : 3,
+      "amount" : 1995702834
+    }, {
+      "id" : 61,
+      "service" : 59,
+      "resource" : 4,
+      "amount" : 523990599
+    }, {
+      "id" : 45,
+      "service" : 44,
+      "resource" : 3,
+      "amount" : 354315314
+    }, {
+      "id" : 46,
+      "service" : 44,
+      "resource" : 4,
+      "amount" : 235112180
+    }, {
+      "id" : 27,
+      "service" : 26,
+      "resource" : 3,
+      "amount" : 1227078162
+    }, {
+      "id" : 28,
+      "service" : 26,
+      "resource" : 4,
+      "amount" : 217776976
+    }, {
+      "id" : 42,
+      "service" : 41,
+      "resource" : 3,
+      "amount" : 769579057
+    }, {
+      "id" : 43,
+      "service" : 41,
+      "resource" : 4,
+      "amount" : 426271151
+    } ],
+    "score" : null
+  },
+  "resourceUtilizationList" : [ {
+    "resource" : 3
+  }, {
+    "resource" : 4
+  } ]
+}

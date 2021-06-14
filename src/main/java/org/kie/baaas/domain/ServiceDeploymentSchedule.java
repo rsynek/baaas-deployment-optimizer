@@ -20,6 +20,7 @@ public class ServiceDeploymentSchedule {
     private HardSoftLongScore score;
 
     public ServiceDeploymentSchedule() {
+        // Required by Jackson.
     }
 
     public ServiceDeploymentSchedule(List<OsdCluster> osdClusters, List<Service> services, List<Resource> resources,
@@ -53,7 +54,7 @@ public class ServiceDeploymentSchedule {
     }
 
     @ProblemFactCollectionProperty
-    public List<ResourceRequirement> getServiceResourceRequirements() {
+    public List<ResourceRequirement> getResourceRequirements() {
         return resourceRequirements;
     }
 
