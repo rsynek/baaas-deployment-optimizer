@@ -1,7 +1,7 @@
 package org.kie.baaas.solver;
 
+import org.kie.baaas.domain.Pod;
 import org.kie.baaas.domain.ResourceCapacity;
-import org.kie.baaas.domain.Service;
 import org.kie.baaas.domain.ResourceRequirement;
 import org.optaplanner.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
 import org.optaplanner.core.api.score.stream.Constraint;
@@ -16,41 +16,51 @@ public class ServiceDeploymentConstraintProvider implements ConstraintProvider {
     @Override
     public Constraint[] defineConstraints(ConstraintFactory constraintFactory) {
         return new Constraint[] {
-                maximumCapacity(constraintFactory)
+                resourceCapacity(constraintFactory)
                 //cost(constraintFactory)
         };
     }
 
-    Constraint maximumCapacity(ConstraintFactory constraintFactory) {
-        return constraintFactory.from(Service.class)
-                .join(ResourceCapacity.class, Joiners.equal(Service::getOsdCluster, ResourceCapacity::getOsdCluster))
+    Constraint resourceCapacity(ConstraintFactory constraintFactory) {
+        return constraintFactory.from(Pod.class)
+                .join(ResourceCapacity.class, Joiners.equal(Pod::getNode, ResourceCapacity::getNode))
                 .join(ResourceRequirement.class,
-                        Joiners.equal((service, resourceCapacity) -> service, ResourceRequirement::getService),
-                        Joiners.equal((service, resourceCapacity) -> resourceCapacity.getResource(), ResourceRequirement::getResource)
+                        Joiners.equal((pod, resourceCapacity) -> pod, ResourceRequirement::getPod),
+                        Joiners.equal((pod, resourceCapacity) -> resourceCapacity.getResource(), ResourceRequirement::getResource)
                 )
                 .groupBy(
-                        (service, resourceCapacity, resourceRequirement) -> service.getOsdCluster(),
-                        (service, resourceCapacity, resourceRequirement) -> resourceCapacity,
+                        (pod, resourceCapacity, resourceRequirement) -> pod.getNode(),
+                        (pod, resourceCapacity, resourceRequirement) -> resourceCapacity,
                         sumLong((service, resourceCapacity, resourceRequirement) -> resourceRequirement.getAmount()))
                 .filter((cluster, resourceCapacity, usagePerCluster) -> usagePerCluster > resourceCapacity.getCapacity())
                 .penalizeLong("resourceCapacity", HardSoftLongScore.ONE_HARD,
                         (cluster, resourceCapacity, usagePerCluster) -> usagePerCluster - resourceCapacity.getCapacity());
-
     }
-/*
-    return factory.from(MrMachineCapacity.class)
-            .join(MrProcessAssignment.class,
-                  equal(MrMachineCapacity::getMachine, MrProcessAssignment::getMachine))
-            .groupBy((machineCapacity, processAssignment) -> machineCapacity.getMachine(),
-            (machineCapacity, processAssignment) -> machineCapacity,
-    sumLong((machineCapacity, processAssignment) -> processAssignment
-            .getUsage(machineCapacity.getResource())))
-            .filter(((machine, machineCapacity, usage) -> machineCapacity.getMaximumCapacity() < usage))
-            .penalizeLong(MrConstraints.MAXIMUM_CAPACITY, HardSoftLongScore.ONE_HARD,
-                        (machine, machineCapacity, usage) -> usage - machineCapacity.getMaximumCapacity());
-   */
 
-    Constraint cost(ConstraintFactory constraintFactory) {
+    Constraint serviceBelongsToSingleCluster(ConstraintFactory constraintFactory) {
+        return constraintFactory.fromUniquePair(Pod.class, Joiners.equal(Pod::getService))
+                .filter((pod1, pod2) -> pod1.getNode().getOsdCluster() != pod2.getNode().getOsdCluster())
+                .penalize("serviceBelongsToSingleCluster", HardSoftLongScore.ONE_HARD);
+    }
+
+    Constraint serviceSpansOverMultipleNodes(ConstraintFactory constraintFactory) {
+        return constraintFactory.fromUniquePair(Pod.class,
+                Joiners.equal(Pod::getService),
+                Joiners.equal(Pod::getNode))
+                .penalize("serviceSpansOverMultipleNodes", HardSoftLongScore.ONE_HARD);
+    }
+
+    Constraint clusterMaintenanceCost(ConstraintFactory constraintFactory) {
+        throw new UnsupportedOperationException();
+    }
+
+    // Avoid moving services between clusters if not necessary
+    Constraint serviceMoveCost(ConstraintFactory constraintFactory) {
+        throw new UnsupportedOperationException();
+    }
+
+    // Avoid moving pods between nodes if not necessary
+    Constraint processMoveCost(ConstraintFactory constraintFactory) {
         throw new UnsupportedOperationException();
     }
 }

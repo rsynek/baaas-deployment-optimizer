@@ -3,7 +3,7 @@ package org.kie.baaas.generator;
 import java.util.Random;
 import java.util.UUID;
 
-public class ServiceSummaryGenerator {
+public class PodSummaryGenerator {
 
     /*
         The original data gathered during a load test:
@@ -28,18 +28,18 @@ public class ServiceSummaryGenerator {
 
     private final Random random;
 
-    public ServiceSummaryGenerator(Random random) {
+    public PodSummaryGenerator(Random random) {
         this.random = random;
     }
 
-    public ServiceSummary generateService() {
+    public PodSummary generatePod() {
         long cpuNanoCores = nextLong(CPU.minValue, CPU.maxValue);
         long memoryBytes = nextLong(MEMORY.minValue, MEMORY.maxValue);
-        ServiceSummary serviceSummary = new ServiceSummary(generateServiceName(), cpuNanoCores, memoryBytes);
-        return serviceSummary;
+        PodSummary podSummary = new PodSummary(generatePodName(), cpuNanoCores, memoryBytes);
+        return podSummary;
     }
 
-    private String generateServiceName() {
+    private String generatePodName() {
         return "decision-" + UUID.randomUUID();
     }
 

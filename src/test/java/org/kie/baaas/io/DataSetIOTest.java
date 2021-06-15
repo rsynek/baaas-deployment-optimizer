@@ -35,6 +35,4 @@ class DataSetIOTest {
         assertThat(resourceUtilizationList.get(0).utilization()).isBetween(0.0, 0.6);
         assertThat(resourceUtilizationList.get(1).utilization()).isBetween(0.0, 0.6);
     }
-
-
 }

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference;
 public class ResourceCapacity extends AbstractIdentifiable {
 
     @JsonIdentityReference(alwaysAsId=true)
-    private OsdCluster osdCluster;
+    private Node node;
     @JsonIdentityReference(alwaysAsId=true)
     private Resource resource;
     private long capacity;
@@ -14,21 +14,21 @@ public class ResourceCapacity extends AbstractIdentifiable {
         // Required by Jackson.
     }
 
-    public ResourceCapacity(OsdCluster osdCluster, Resource resource, long capacity) {
-        this.osdCluster = osdCluster;
+    public ResourceCapacity(Node node, Resource resource, long capacity) {
+        this.node = node;
         this.resource = resource;
         this.capacity = capacity;
     }
 
-    public ResourceCapacity(long id, OsdCluster osdCluster, Resource resource, long capacity) {
+    public ResourceCapacity(long id, Node node, Resource resource, long capacity) {
         super(id);
-        this.osdCluster = osdCluster;
+        this.node = node;
         this.resource = resource;
         this.capacity = capacity;
     }
 
-    public OsdCluster getOsdCluster() {
-        return osdCluster;
+    public Node getNode() {
+        return node;
     }
 
     public Resource getResource() {

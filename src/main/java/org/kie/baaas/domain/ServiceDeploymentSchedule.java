@@ -13,7 +13,9 @@ import org.optaplanner.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
 public class ServiceDeploymentSchedule {
 
     private List<OsdCluster> osdClusters;
+    private List<Node> nodes;
     private List<Service> services;
+    private List<Pod> pods;
     private List<Resource> resources;
     private List<ResourceCapacity> resourceCapacities;
     private List<ResourceRequirement> resourceRequirements;
@@ -23,24 +25,37 @@ public class ServiceDeploymentSchedule {
         // Required by Jackson.
     }
 
-    public ServiceDeploymentSchedule(List<OsdCluster> osdClusters, List<Service> services, List<Resource> resources,
-                                     List<ResourceCapacity> resourceCapacities, List<ResourceRequirement> resourceRequirements) {
+    public ServiceDeploymentSchedule(List<OsdCluster> osdClusters, List<Node> nodes, List<Service> services,
+                                     List<Pod> pods, List<Resource> resources, List<ResourceCapacity> resourceCapacities,
+                                     List<ResourceRequirement> resourceRequirements) {
         this.osdClusters = osdClusters;
+        this.nodes = nodes;
         this.services = services;
+        this.pods = pods;
         this.resources = resources;
         this.resourceCapacities = resourceCapacities;
         this.resourceRequirements = resourceRequirements;
     }
 
-    @ValueRangeProvider(id = "clustersRange")
     @ProblemFactCollectionProperty
     public List<OsdCluster> getOsdClusters() {
         return osdClusters;
     }
 
-    @PlanningEntityCollectionProperty
+    @ValueRangeProvider(id = "nodesRange")
+    @ProblemFactCollectionProperty
+    public List<Node> getNodes() {
+        return nodes;
+    }
+
+    @ProblemFactCollectionProperty
     public List<Service> getServices() {
         return services;
+    }
+
+    @PlanningEntityCollectionProperty
+    public List<Pod> getPods() {
+        return pods;
     }
 
     @ProblemFactCollectionProperty

@@ -12,7 +12,9 @@ import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 
+import org.kie.baaas.domain.Node;
 import org.kie.baaas.domain.OsdCluster;
+import org.kie.baaas.domain.Pod;
 import org.kie.baaas.domain.Resource;
 import org.kie.baaas.domain.ResourceCapacity;
 import org.kie.baaas.domain.ResourceRequirement;
@@ -30,19 +32,20 @@ public class DataSetGenerator {
     private static final long MEMORY_MULTIPLIER = 1024L * 1024L * 1024L;
     private final Random random = new Random();
     private final ClusterGenerator clusterGenerator = new ClusterGenerator(random);
-    private final ServiceSummaryGenerator serviceSummaryGenerator = new ServiceSummaryGenerator(random);
+    private final PodSummaryGenerator podSummaryGenerator = new PodSummaryGenerator(random);
     private final Resource cpuResource = new Resource(IdGenerator.nextId());
     private final Resource memoryResource = new Resource(IdGenerator.nextId());
 
     /**
      * Generates a single {@link DataSet} instance given the input parameters.
-     * @param clusterCount the number of OSD cluster instances
-     * @param minClusterSize a minimal number of worker nodes in a single OSD cluster
-     * @param maxClusterSize a maximal number of worker nodes in a single OSD cluster
+     *
+     * @param clusterCount         the number of OSD cluster instances
+     * @param minClusterSize       a minimal number of worker nodes in a single OSD cluster
+     * @param maxClusterSize       a maximal number of worker nodes in a single OSD cluster
      * @param baseUtilizationRatio a resource utilization ratio not counting the generated services. This parameter
      *                             artificially decreases the resource capacities to simulate resource consumption by
      *                             processes not directly related to Decision Services. A double between 0.0 and 1.0.
-     * @param maxUtilizationRatio a total resource utilization ratio that must not be exceeded. A double between 0.0 and 1.0
+     * @param maxUtilizationRatio  a total resource utilization ratio that must not be exceeded. A double between 0.0 and 1.0
      */
     public DataSet generateDataSet(int clusterCount, int minClusterSize, int maxClusterSize, double baseUtilizationRatio, double maxUtilizationRatio) {
         assertNonNegativeInteger(clusterCount, "clusterCount");
@@ -55,12 +58,17 @@ public class DataSetGenerator {
         }
 
         List<OpenShiftCluster> openShiftClusters = generateClusters(clusterCount, minClusterSize, maxClusterSize);
-        Map<OsdCluster, List<ResourceCapacity>> osdClusterWithResourceCapacities = createOsdClusters(openShiftClusters, baseUtilizationRatio);
-        List<OsdCluster> osdClusters = new ArrayList<>(osdClusterWithResourceCapacities.keySet());
-        List<ResourceCapacity> resourceCapacities = osdClusterWithResourceCapacities.values().stream()
+        Map<Node, List<ResourceCapacity>> nodesWithResourceCapacities = createNodes(openShiftClusters, baseUtilizationRatio);
+        List<Node> nodes = new ArrayList<>(nodesWithResourceCapacities.keySet());
+        List<OsdCluster> osdClusters = nodes.stream()
+                .map(Node::getOsdCluster)
+                .distinct()
+                .collect(Collectors.toList());
+        List<ResourceCapacity> resourceCapacities = nodesWithResourceCapacities.values().stream()
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
 
+        //  60 - 10 = 50% utilization can be used by services
         final double remainingResourceRatio = maxUtilizationRatio - baseUtilizationRatio;
         Map<Resource, Long> remainingCapacityPerResource = resourceCapacities.stream()
                 .collect(Collectors.groupingBy(ResourceCapacity::getResource,
@@ -69,14 +77,18 @@ public class DataSetGenerator {
             capacityEntry.setValue((long) (capacityEntry.getValue() * remainingResourceRatio));
         }
 
-        Map<Service, List<ResourceRequirement>> servicesWithResourceRequirements = generateServices(remainingCapacityPerResource);
-        List<Service> services = new ArrayList<>(servicesWithResourceRequirements.keySet());
-        List<ResourceRequirement> resourceRequirements = servicesWithResourceRequirements.values().stream()
+        Map<Pod, List<ResourceRequirement>> podsWithResourceRequirements = generatePods(remainingCapacityPerResource);
+        List<Pod> pods = new ArrayList<>(podsWithResourceRequirements.keySet());
+        List<Service> services = pods.stream()
+                .map(Pod::getService)
+                .distinct()
+                .collect(Collectors.toList());
+        List<ResourceRequirement> resourceRequirements = podsWithResourceRequirements.values().stream()
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
 
-        ServiceDeploymentSchedule serviceDeploymentSchedule = new ServiceDeploymentSchedule(osdClusters, services,
-                Arrays.asList(cpuResource, memoryResource), resourceCapacities, resourceRequirements);
+        ServiceDeploymentSchedule serviceDeploymentSchedule = new ServiceDeploymentSchedule(osdClusters, nodes,
+                services, pods, Arrays.asList(cpuResource, memoryResource), resourceCapacities, resourceRequirements);
         return new DataSet(openShiftClusters, serviceDeploymentSchedule);
     }
 
@@ -105,14 +117,16 @@ public class DataSetGenerator {
         return min + random.nextInt(max - min + 1);
     }
 
-    private Map<Service, List<ResourceRequirement>> generateServices(Map<Resource, Long> remainingCapacityPerResource) {
-        Map<Service, List<ResourceRequirement>> servicesWithResourceRequirements = new HashMap<>();
+    private Map<Pod, List<ResourceRequirement>> generatePods(Map<Resource, Long> remainingCapacityPerResource) {
+        Map<Pod, List<ResourceRequirement>> podsWithResourceRequirements = new HashMap<>();
 
         boolean isAnyResourceDepleted = false;
         while (!isAnyResourceDepleted) {
-            ServiceSummary serviceSummary = serviceSummaryGenerator.generateService();
-            Service service = new Service(IdGenerator.nextId(), serviceSummary.getName());
-            List<ResourceRequirement> resourceRequirements = createResourceRequirements(serviceSummary, service);
+            PodSummary podSummary = podSummaryGenerator.generatePod();
+            // TODO: Generate services with multiple running pods.
+            Service service = new Service(IdGenerator.nextId());
+            Pod pod = new Pod(IdGenerator.nextId(), podSummary.getName(), service);
+            List<ResourceRequirement> resourceRequirements = createResourceRequirements(podSummary, pod);
             for (ResourceRequirement resourceRequirement : resourceRequirements) {
                 Long remainingCapacity = remainingCapacityPerResource.computeIfPresent(resourceRequirement.getResource(),
                         (resource, value) -> value - resourceRequirement.getAmount());
@@ -122,38 +136,41 @@ public class DataSetGenerator {
             }
 
             if (!isAnyResourceDepleted) {
-                servicesWithResourceRequirements.put(service, resourceRequirements);
+                podsWithResourceRequirements.put(pod, resourceRequirements);
             }
         }
 
-        return servicesWithResourceRequirements;
+        return podsWithResourceRequirements;
     }
 
-    private List<ResourceRequirement> createResourceRequirements(ServiceSummary serviceSummary, Service service) {
-        ResourceRequirement cpuRequirement = new ResourceRequirement(IdGenerator.nextId(), service, cpuResource, serviceSummary.getCpuNanoCoresUsage());
-        ResourceRequirement memoryRequirement = new ResourceRequirement(IdGenerator.nextId(), service, memoryResource, serviceSummary.getMemoryBytesUsage());
+    private List<ResourceRequirement> createResourceRequirements(PodSummary podSummary, Pod pod) {
+        ResourceRequirement cpuRequirement = new ResourceRequirement(IdGenerator.nextId(), pod, cpuResource, podSummary.getCpuNanoCoresUsage());
+        ResourceRequirement memoryRequirement = new ResourceRequirement(IdGenerator.nextId(), pod, memoryResource, podSummary.getMemoryBytesUsage());
         return Arrays.asList(cpuRequirement, memoryRequirement);
     }
 
-    private Map<OsdCluster, List<ResourceCapacity>> createOsdClusters(List<OpenShiftCluster> openShiftClusters, double baseUtilizationRatio) {
-        Map<OsdCluster, List<ResourceCapacity>> clustersWithResourceCapacities = new HashMap<>(openShiftClusters.size());
+    private Map<Node, List<ResourceCapacity>> createNodes(List<OpenShiftCluster> openShiftClusters, double baseUtilizationRatio) {
+        Map<Node, List<ResourceCapacity>> nodesWithResourceCapacities = new HashMap<>(openShiftClusters.size());
         openShiftClusters.forEach(openShiftCluster -> {
             OsdCluster osdCluster = createOsdCluster(openShiftCluster);
-            List<ResourceCapacity> resourceCapacities = createResourceCapacities(openShiftCluster, osdCluster, baseUtilizationRatio);
-            clustersWithResourceCapacities.put(osdCluster, resourceCapacities);
+            for (OpenShiftNode openShiftNode : openShiftCluster.getOpenShiftNodes()) {
+                Node node = new Node(IdGenerator.nextId(), osdCluster);
+                List<ResourceCapacity> resourceCapacities = createResourceCapacities(openShiftNode, node, baseUtilizationRatio);
+                nodesWithResourceCapacities.put(node, resourceCapacities);
+            }
         });
-        return clustersWithResourceCapacities;
+        return nodesWithResourceCapacities;
     }
 
     private OsdCluster createOsdCluster(OpenShiftCluster openShiftCluster) {
         return new OsdCluster(IdGenerator.nextId(), openShiftCluster.getCost());
     }
 
-    private List<ResourceCapacity> createResourceCapacities(OpenShiftCluster openShiftCluster, OsdCluster osdCluster, double baseUtilizationRatio) {
-        ResourceCapacity cpuCapacity = new ResourceCapacity(IdGenerator.nextId(), osdCluster, cpuResource,
-                computeTotalAvailableCapacity(openShiftCluster.getTotalCpuCores() * CPU_CORES_MULTIPLIER, baseUtilizationRatio));
-        ResourceCapacity memoryCapacity = new ResourceCapacity(IdGenerator.nextId(), osdCluster, memoryResource,
-                computeTotalAvailableCapacity(openShiftCluster.getTotalMemoryGiBs() * MEMORY_MULTIPLIER, baseUtilizationRatio));
+    private List<ResourceCapacity> createResourceCapacities(OpenShiftNode openShiftNode, Node node, double baseUtilizationRatio) {
+        ResourceCapacity cpuCapacity = new ResourceCapacity(IdGenerator.nextId(), node, cpuResource,
+                computeTotalAvailableCapacity(openShiftNode.getCloudNode().getCpuCores() * CPU_CORES_MULTIPLIER, baseUtilizationRatio));
+        ResourceCapacity memoryCapacity = new ResourceCapacity(IdGenerator.nextId(), node, memoryResource,
+                computeTotalAvailableCapacity(openShiftNode.getCloudNode().getMemoryGiBs() * MEMORY_MULTIPLIER, baseUtilizationRatio));
         return Arrays.asList(cpuCapacity, memoryCapacity);
     }
 

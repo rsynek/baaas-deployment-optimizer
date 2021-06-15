@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference;
 public class ResourceRequirement extends AbstractIdentifiable {
 
     @JsonIdentityReference(alwaysAsId=true)
-    private Service service;
+    private Pod pod;
     @JsonIdentityReference(alwaysAsId=true)
     private Resource resource;
     private long amount;
@@ -14,21 +14,21 @@ public class ResourceRequirement extends AbstractIdentifiable {
         // Required by Jackson.
     }
 
-    public ResourceRequirement(Service service, Resource resource, long amount) {
-        this.service = service;
+    public ResourceRequirement(Pod pod, Resource resource, long amount) {
+        this.pod = pod;
         this.resource = resource;
         this.amount = amount;
     }
 
-    public ResourceRequirement(long id, Service service, Resource resource, long amount) {
+    public ResourceRequirement(long id, Pod pod, Resource resource, long amount) {
         super(id);
-        this.service = service;
+        this.pod = pod;
         this.resource = resource;
         this.amount = amount;
     }
 
-    public Service getService() {
-        return service;
+    public Pod getPod() {
+        return pod;
     }
 
     public Resource getResource() {
