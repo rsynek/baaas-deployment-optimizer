@@ -6,18 +6,18 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 @JsonIdentityInfo(generator= ObjectIdGenerators.PropertyGenerator.class, property="id")
 public class OsdCluster extends AbstractIdentifiable {
 
-    private double costPerHour;
+    private long costPerHour;
 
     public OsdCluster() {
         // Required by Jackson.
     }
 
-    public OsdCluster(long id, double costPerHour) {
+    public OsdCluster(long id, long costPerHour) {
         super(id);
         this.costPerHour = costPerHour;
     }
 
-    public double getCostPerHour() {
+    public long getCostPerHour() {
         return costPerHour;
     }
 }

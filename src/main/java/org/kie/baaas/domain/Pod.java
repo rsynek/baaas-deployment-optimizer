@@ -1,5 +1,7 @@
 package org.kie.baaas.domain;
 
+import java.util.Objects;
+
 import org.optaplanner.core.api.domain.entity.PlanningEntity;
 import org.optaplanner.core.api.domain.variable.PlanningVariable;
 
@@ -54,5 +56,12 @@ public class Pod extends AbstractIdentifiable {
 
     public Node getOriginalNode() {
         return originalNode;
+    }
+
+    public boolean isMoved() {
+        if (node == null) {
+            return false;
+        }
+        return !Objects.equals(originalNode, node);
     }
 }

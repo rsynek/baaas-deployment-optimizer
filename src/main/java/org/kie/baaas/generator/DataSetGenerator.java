@@ -163,7 +163,7 @@ public class DataSetGenerator {
     }
 
     private OsdCluster createOsdCluster(OpenShiftCluster openShiftCluster) {
-        return new OsdCluster(IdGenerator.nextId(), openShiftCluster.getCost());
+        return new OsdCluster(IdGenerator.nextId(), (long) (openShiftCluster.getCost() * 1000_000L));
     }
 
     private List<ResourceCapacity> createResourceCapacities(OpenShiftNode openShiftNode, Node node, double baseUtilizationRatio) {
