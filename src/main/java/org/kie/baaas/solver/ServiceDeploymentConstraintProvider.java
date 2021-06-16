@@ -20,14 +20,14 @@ public class ServiceDeploymentConstraintProvider implements ConstraintProvider {
     @Override
     public Constraint[] defineConstraints(ConstraintFactory constraintFactory) {
         return new Constraint[] {
-                resourceCapacity(constraintFactory),
+                safeResourceCapacity(constraintFactory),
                 singleClusterPerService(constraintFactory),
                 serviceSpansOverMultipleNodes(constraintFactory),
                 clusterCost(constraintFactory)
         };
     }
 
-    Constraint resourceCapacity(ConstraintFactory constraintFactory) {
+    Constraint safeResourceCapacity(ConstraintFactory constraintFactory) {
         return constraintFactory.from(Pod.class)
                 .join(ResourceCapacity.class, Joiners.equal(Pod::getNode, ResourceCapacity::getNode))
                 .join(ResourceRequirement.class,
@@ -37,10 +37,11 @@ public class ServiceDeploymentConstraintProvider implements ConstraintProvider {
                 .groupBy(
                         (pod, resourceCapacity, resourceRequirement) -> pod.getNode(),
                         (pod, resourceCapacity, resourceRequirement) -> resourceCapacity,
-                        sumLong((service, resourceCapacity, resourceRequirement) -> resourceRequirement.getAmount()))
-                .filter((cluster, resourceCapacity, usagePerCluster) -> usagePerCluster > resourceCapacity.getCapacity())
-                .penalizeLong("resourceCapacity", HardSoftLongScore.ONE_HARD,
-                        (cluster, resourceCapacity, usagePerCluster) -> usagePerCluster - resourceCapacity.getCapacity());
+                        sumLong((pod, resourceCapacity, resourceRequirement) -> resourceRequirement.getAmount()))
+                .filter((node, resourceCapacity, usagePerNode) -> usagePerNode > resourceCapacity.getSafeCapacity())
+                .filter((node, resourceCapacity, aLong) -> {System.out.println("Node " + node + " resource " + resourceCapacity.getResource() + " usage: " +aLong); return true;})
+                .penalizeLong("safeResourceCapacity", HardSoftLongScore.ONE_HARD,
+                        (node, resourceCapacity, usagePerNode) -> usagePerNode - resourceCapacity.getSafeCapacity());
     }
 
     Constraint singleClusterPerService(ConstraintFactory constraintFactory) {

@@ -38,4 +38,8 @@ public class ResourceCapacity extends AbstractIdentifiable {
     public long getCapacity() {
         return capacity;
     }
+
+    public long getSafeCapacity() {
+        return (long) Math.ceil(getCapacity() * getResource().getSafeCapacityRatio());
+    }
 }

@@ -30,11 +30,12 @@ public class DataSetGenerator {
     // Using nano cores to avoid losing precision.
     private static final long CPU_CORES_MULTIPLIER = 1000_000_000L;
     private static final long MEMORY_MULTIPLIER = 1024L * 1024L * 1024L;
+    private static final double RESOURCE_SAFE_CAPACITY_RATIO = 0.8;
     private final Random random = new Random();
     private final ClusterGenerator clusterGenerator = new ClusterGenerator(random);
     private final PodSummaryGenerator podSummaryGenerator = new PodSummaryGenerator(random);
-    private final Resource cpuResource = new Resource(IdGenerator.nextId());
-    private final Resource memoryResource = new Resource(IdGenerator.nextId());
+    private final Resource cpuResource = new Resource(IdGenerator.nextId(), RESOURCE_SAFE_CAPACITY_RATIO);
+    private final Resource memoryResource = new Resource(IdGenerator.nextId(), RESOURCE_SAFE_CAPACITY_RATIO);
 
     /**
      * Generates a single {@link DataSet} instance given the input parameters.

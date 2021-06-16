@@ -23,18 +23,18 @@ public class ServiceDeploymentConstraintProviderTest {
 
     @Test
     void resourceCapacity() {
-        Resource cpu = new Resource(1L);
-        Resource memory = new Resource(2L);
+        Resource cpu = new Resource(1L, 0.8);
+        Resource memory = new Resource(2L ,0.8);
 
         OsdCluster cluster1 = new OsdCluster(1L, 5);
-        Node node1Cluster1 = new Node(1L, cluster1);
+        Node node1 = new Node(1L, cluster1);
         OsdCluster cluster2 = new OsdCluster(2L, 5);
-        Node node2Cluster2 = new Node(2L, cluster2);
+        Node node2 = new Node(2L, cluster2);
 
-        ResourceCapacity cpuCapacityNode1 = new ResourceCapacity(node1Cluster1, cpu, 10L);
-        ResourceCapacity memoryCapacityNode1 = new ResourceCapacity(node1Cluster1, cpu, 10L);
-        ResourceCapacity cpuCapacityNode2 = new ResourceCapacity(node2Cluster2, cpu, 10L);
-        ResourceCapacity memoryCapacityNode2 = new ResourceCapacity(node2Cluster2, cpu, 10L);
+        ResourceCapacity cpuCapacityNode1 = new ResourceCapacity(node1, cpu, 10L);
+        ResourceCapacity memoryCapacityNode1 = new ResourceCapacity(node1, cpu, 10L);
+        ResourceCapacity cpuCapacityNode2 = new ResourceCapacity(node2, cpu, 10L);
+        ResourceCapacity memoryCapacityNode2 = new ResourceCapacity(node2, cpu, 10L);
 
         Service service1 = new Service(1L);
         Pod pod1 = new Pod(1L, "pod-1", service1);
@@ -42,9 +42,9 @@ public class ServiceDeploymentConstraintProviderTest {
         Pod pod2 = new Pod(2L, "pod-2", service2);
         Service service3 = new Service(3L);
         Pod pod3 = new Pod(3L, "pod-3", service3);
-        pod1.setNode(node1Cluster1);
-        pod2.setNode(node1Cluster1);
-        pod3.setNode(node2Cluster2);
+        pod1.setNode(node1);
+        pod2.setNode(node2);
+        pod3.setNode(node2);
 
         ResourceRequirement cpuRequirementPod1 = new ResourceRequirement(pod1, cpu, 3L);
         ResourceRequirement memoryRequirementPod1 = new ResourceRequirement(pod1, memory, 3L);
@@ -54,15 +54,15 @@ public class ServiceDeploymentConstraintProviderTest {
         ResourceRequirement memoryRequirementPod3 = new ResourceRequirement(pod3, memory, 300L);
 
         /*
-           cluster1: (10 - 3) + (10 - 3)  = no penalty
-           cluster2: (10 - 300 - 30) + (10 - 300 - 30) = -640
+           node1: (10 * 0.8 - 3) + (10 * 0.8 - 3)  = no penalty
+           node2: (10 * 0.8 - 300 - 30) + (10 * 0.8 - 300 - 30) = -644
          */
-        constraintVerifier.verifyThat(ServiceDeploymentConstraintProvider::resourceCapacity)
-                .given(cpu, memory, cluster1, cluster2, node1Cluster1, node2Cluster2, cpuCapacityNode1,
+        constraintVerifier.verifyThat(ServiceDeploymentConstraintProvider::safeResourceCapacity)
+                .given(cpu, memory, cluster1, cluster2, node1, node2, cpuCapacityNode1,
                         memoryCapacityNode1, cpuCapacityNode2, memoryCapacityNode2, pod1, pod2, pod3, service1,
                         service2, service3, cpuRequirementPod1, memoryRequirementPod1, cpuRequirementPod2,
                         memoryRequirementPod2, cpuRequirementPod3, memoryRequirementPod3)
-                .penalizesBy(640L);
+                .penalizesBy(644L);
     }
 
     @Test
