@@ -1,0 +1,67 @@
+package org.kie.baaas.optimizer.cli;
+
+import java.io.File;
+import java.util.Collections;
+import java.util.Objects;
+
+import javax.inject.Inject;
+
+import org.kie.baaas.optimizer.domain.ServiceDeploymentSchedule;
+import org.kie.baaas.optimizer.generator.DataSet;
+import org.kie.baaas.optimizer.io.DataSetIO;
+import org.optaplanner.core.api.solver.Solver;
+import org.optaplanner.core.api.solver.SolverFactory;
+import org.optaplanner.core.config.constructionheuristic.ConstructionHeuristicPhaseConfig;
+import org.optaplanner.core.config.phase.PhaseConfig;
+import org.optaplanner.core.config.solver.SolverConfig;
+
+import picocli.CommandLine;
+
+@CommandLine.Command(name = "init", description = "Initializes the solution by running a Construction Heuristic.")
+public class SolverConstructionHeuristicCommand implements Runnable {
+
+    @CommandLine.Parameters(index = "0")
+    File inputFile;
+
+    @CommandLine.Option(names = {"-o", "--output-file"}, description = "Output file to write results to.")
+    File outputFile;
+
+    private final SolverConfig solverConfig;
+    private final DataSetIO dataSetIO;
+
+    @Inject
+    public SolverConstructionHeuristicCommand(SolverConfig solverConfig, DataSetIO dataSetIO) {
+        this.solverConfig = solverConfig;
+        this.dataSetIO = dataSetIO;
+    }
+
+    @Override
+    public void run() {
+        Objects.requireNonNull(inputFile);
+        DataSet dataSet = dataSetIO.read(inputFile);
+        ServiceDeploymentSchedule problem = Objects.requireNonNull(dataSet.getServiceDeploymentSchedule());
+        Solver<ServiceDeploymentSchedule> solver = buildSolverWithConstructionHeuristicOnly();
+        ServiceDeploymentSchedule solution = solver.solve(problem);
+
+        dataSet.setServiceDeploymentSchedule(solution);
+
+        if (outputFile != null) {
+            dataSetIO.write(outputFile, dataSet);
+        } else {
+            dataSetIO.write(createDefaultOutputFile(inputFile.getName()), dataSet);
+        }
+    }
+
+    private Solver<ServiceDeploymentSchedule> buildSolverWithConstructionHeuristicOnly() {
+        PhaseConfig<?> chPhaseConfig = new ConstructionHeuristicPhaseConfig();
+        solverConfig.setPhaseConfigList(Collections.singletonList(chPhaseConfig));
+        solverConfig.setTerminationConfig(null);
+        SolverFactory<ServiceDeploymentSchedule> solverFactory = SolverFactory.create(solverConfig);
+        return solverFactory.buildSolver();
+    }
+
+    private String createDefaultOutputFile(String inputFileName) {
+        int lastDotIndex = inputFileName.lastIndexOf('.');
+        return inputFileName.substring(0, lastDotIndex ) + "_initialized" + inputFileName.substring(lastDotIndex);
+    }
+}
