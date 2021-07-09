@@ -10,13 +10,13 @@ import org.optaplanner.core.api.domain.valuerange.ValueRangeProvider;
 import org.optaplanner.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
 
 @PlanningSolution
-public class ServiceDeploymentSchedule {
-
+public class ServiceDeploymentSchedule extends AbstractIdentifiable {
     private List<OsdCluster> osdClusters;
     private List<Service> services;
     private List<Resource> resources;
     private List<ResourceCapacity> resourceCapacities;
     private List<ResourceRequirement> resourceRequirements;
+    private List<Region> regions;
     private HardSoftLongScore score;
 
     public ServiceDeploymentSchedule() {
@@ -24,12 +24,14 @@ public class ServiceDeploymentSchedule {
     }
 
     public ServiceDeploymentSchedule(List<OsdCluster> osdClusters, List<Service> services, List<Resource> resources,
-                                     List<ResourceCapacity> resourceCapacities, List<ResourceRequirement> resourceRequirements) {
+                                     List<ResourceCapacity> resourceCapacities, List<ResourceRequirement> resourceRequirements,
+                                     List<Region> regions) {
         this.osdClusters = osdClusters;
         this.services = services;
         this.resources = resources;
         this.resourceCapacities = resourceCapacities;
         this.resourceRequirements = resourceRequirements;
+        this.regions = regions;
     }
 
     @ValueRangeProvider(id = "clustersRange")
@@ -56,6 +58,11 @@ public class ServiceDeploymentSchedule {
     @ProblemFactCollectionProperty
     public List<ResourceRequirement> getResourceRequirements() {
         return resourceRequirements;
+    }
+
+    @ProblemFactCollectionProperty
+    public List<Region> getRegions() {
+        return regions;
     }
 
     @PlanningScore

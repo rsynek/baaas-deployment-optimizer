@@ -4,6 +4,7 @@ import javax.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 import org.kie.baaas.optimizer.domain.OsdCluster;
+import org.kie.baaas.optimizer.domain.Region;
 import org.kie.baaas.optimizer.domain.Resource;
 import org.kie.baaas.optimizer.domain.ResourceCapacity;
 import org.kie.baaas.optimizer.domain.ResourceRequirement;
@@ -24,17 +25,17 @@ public class ServiceDeploymentConstraintProviderTest {
         Resource cpu = new Resource(1L, 0.8);
         Resource memory = new Resource(2L, 0.8);
 
-        OsdCluster cluster1 = new OsdCluster(1L, 5);
-        OsdCluster cluster2 = new OsdCluster(2L, 5);
+        OsdCluster cluster1 = new OsdCluster(1L, 5, null);
+        OsdCluster cluster2 = new OsdCluster(2L, 5, null);
 
         ResourceCapacity cpuCapacityCluster1 = new ResourceCapacity(cluster1, cpu, 10L);
         ResourceCapacity memoryCapacityCluster1 = new ResourceCapacity(cluster1, memory, 10L);
         ResourceCapacity cpuCapacityCluster2 = new ResourceCapacity(cluster2, cpu, 10L);
         ResourceCapacity memoryCapacityCluster2 = new ResourceCapacity(cluster2, memory, 10L);
 
-        Service service1 = new Service(1L, "decision1");
-        Service service2 = new Service(2L, "decision2");
-        Service service3 = new Service(3L, "decision3");
+        Service service1 = new Service(1L, "decision1", null);
+        Service service2 = new Service(2L, "decision2", null);
+        Service service3 = new Service(3L, "decision3", null);
 
         service1.setOsdCluster(cluster1);
         service2.setOsdCluster(cluster2);
@@ -61,12 +62,12 @@ public class ServiceDeploymentConstraintProviderTest {
 
     @Test
     void clusterCost() {
-        OsdCluster cluster1 = new OsdCluster(1L, 1);
-        OsdCluster cluster2 = new OsdCluster(2L, 10);
-        OsdCluster cluster3 = new OsdCluster(3L, 100);
+        OsdCluster cluster1 = new OsdCluster(1L, 1, null);
+        OsdCluster cluster2 = new OsdCluster(2L, 10, null);
+        OsdCluster cluster3 = new OsdCluster(3L, 100, null);
 
-        Service service1 = new Service(1L, "decision1");
-        Service service2 = new Service(2L, "decision2");
+        Service service1 = new Service(1L, "decision1", null);
+        Service service2 = new Service(2L, "decision2", null);
         service1.setOsdCluster(cluster1);
         service2.setOsdCluster(cluster2);
 
@@ -78,12 +79,12 @@ public class ServiceDeploymentConstraintProviderTest {
 
     @Test
     void serviceMoveCost() {
-        OsdCluster cluster1 = new OsdCluster(1L, 1);
-        OsdCluster cluster2 = new OsdCluster(2L, 1);
+        OsdCluster cluster1 = new OsdCluster(1L, 1, null);
+        OsdCluster cluster2 = new OsdCluster(2L, 1, null);
 
-        Service service1 = new Service(1L, "decision1", cluster1);
-        Service service2 = new Service(2L, "decision2", cluster1);
-        Service service3 = new Service(3L, "decision3", cluster1);
+        Service service1 = new Service(1L, "decision1", null, cluster1);
+        Service service2 = new Service(2L, "decision2", null, cluster1);
+        Service service3 = new Service(3L, "decision3", null, cluster1);
         service1.setOsdCluster(cluster1);
         service2.setOsdCluster(cluster2);
         service3.setOsdCluster(cluster2);
@@ -92,5 +93,23 @@ public class ServiceDeploymentConstraintProviderTest {
         constraintVerifier.verifyThat(ServiceDeploymentConstraintProvider::serviceMoveCost)
                 .given(cluster1, cluster2, service1, service2, service3)
                 .penalizesBy(2);
+    }
+
+    @Test
+    void matchingRegion() {
+        Region region1 = new Region(1L, "us-west");
+        Region region2 = new Region(2L, "us-east");
+        OsdCluster cluster1 = new OsdCluster(1L, 1, region1);
+        OsdCluster cluster2 = new OsdCluster(2L, 1, region2);
+
+        Service service1 = new Service(1L, "decision1", region1);
+        Service service2 = new Service(2L, "decision2", region1);
+        service1.setOsdCluster(cluster1);
+        service2.setOsdCluster(cluster2);
+
+        // The service2 should be deployed to the cluster1 instead of the cluster2 due to a matching region.
+        constraintVerifier.verifyThat(ServiceDeploymentConstraintProvider::matchingRegion)
+                .given(cluster1, cluster2, service1, service2)
+                .penalizesBy(1);
     }
 }

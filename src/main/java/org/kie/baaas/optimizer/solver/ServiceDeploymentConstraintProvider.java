@@ -19,7 +19,8 @@ public class ServiceDeploymentConstraintProvider implements ConstraintProvider {
         return new Constraint[] {
                 safeResourceCapacity(constraintFactory),
                 serviceMoveCost(constraintFactory),
-                clusterCost(constraintFactory)
+                clusterCost(constraintFactory),
+                matchingRegion(constraintFactory)
         };
     }
 
@@ -45,10 +46,15 @@ public class ServiceDeploymentConstraintProvider implements ConstraintProvider {
                 .penalizeLong("clusterCost", HardSoftLongScore.ONE_SOFT, OsdCluster::getCostPerHour);
     }
 
-    // Avoid moving services between clusters if not necessary.
     Constraint serviceMoveCost(ConstraintFactory constraintFactory) {
         return constraintFactory.from(Service.class)
                 .filter(service -> service.isMoved())
                 .penalize("serviceMoveCost", HardSoftLongScore.ONE_SOFT);
+    }
+
+    Constraint matchingRegion(ConstraintFactory constraintFactory) {
+        return constraintFactory.from(Service.class)
+                .filter(service -> service.getRegion() != service.getOsdCluster().getRegion())
+                .penalize("matchingRegion", HardSoftLongScore.ONE_HARD);
     }
 }

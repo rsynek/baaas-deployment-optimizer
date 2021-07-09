@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 
 import org.kie.baaas.optimizer.domain.OsdCluster;
+import org.kie.baaas.optimizer.domain.Region;
 import org.kie.baaas.optimizer.domain.Resource;
 import org.kie.baaas.optimizer.domain.ResourceCapacity;
 import org.kie.baaas.optimizer.domain.ResourceRequirement;
@@ -32,6 +33,7 @@ public class DataSetGenerator {
     private final Random random = new Random();
     private final ClusterGenerator clusterGenerator = new ClusterGenerator(random);
     private final ServiceSummaryGenerator serviceSummaryGenerator = new ServiceSummaryGenerator(random);
+    private final RegionGenerator regionGenerator = new RegionGenerator(random);
     private final Resource cpuResource = new Resource(IdGenerator.nextId(), RESOURCE_SAFE_CAPACITY_RATIO);
     private final Resource memoryResource = new Resource(IdGenerator.nextId(), RESOURCE_SAFE_CAPACITY_RATIO);
 
@@ -57,6 +59,10 @@ public class DataSetGenerator {
         List<OpenShiftCluster> openShiftClusters = generateClusters(clusterCount, minClusterSize, maxClusterSize);
         Map<OsdCluster, List<ResourceCapacity>> createOsdClustersWithResources = createOsdClustersWithResources(openShiftClusters);
         List<OsdCluster> osdClusters = new ArrayList<>(createOsdClustersWithResources.keySet());
+        List<Region> availableRegions = osdClusters.stream()
+                .map(OsdCluster::getRegion)
+                .distinct()
+                .collect(Collectors.toList());
         List<ResourceCapacity> resourceCapacities = createOsdClustersWithResources.values().stream()
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
@@ -68,14 +74,14 @@ public class DataSetGenerator {
             capacityEntry.setValue((long) (capacityEntry.getValue() * maxUtilizationRatio));
         }
 
-        Map<Service, List<ResourceRequirement>> servicesWithResourceRequirements = generateServices(remainingCapacityPerResource);
+        Map<Service, List<ResourceRequirement>> servicesWithResourceRequirements = generateServices(remainingCapacityPerResource, availableRegions);
         List<Service> services = new ArrayList<>(servicesWithResourceRequirements.keySet());
         List<ResourceRequirement> resourceRequirements = servicesWithResourceRequirements.values().stream()
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
 
         ServiceDeploymentSchedule serviceDeploymentSchedule = new ServiceDeploymentSchedule(osdClusters, services,
-                Arrays.asList(cpuResource, memoryResource), resourceCapacities, resourceRequirements);
+                Arrays.asList(cpuResource, memoryResource), resourceCapacities, resourceRequirements, regionGenerator.getAllRegions());
         return new DataSet(openShiftClusters, serviceDeploymentSchedule);
     }
 
@@ -98,13 +104,13 @@ public class DataSetGenerator {
         return min + random.nextInt(max - min + 1);
     }
 
-    private Map<Service, List<ResourceRequirement>> generateServices(Map<Resource, Long> remainingCapacityPerResource) {
+    private Map<Service, List<ResourceRequirement>> generateServices(Map<Resource, Long> remainingCapacityPerResource, List<Region> availableRegions) {
         Map<Service, List<ResourceRequirement>> podsWithResourceRequirements = new HashMap<>();
-
+        int availableRegionsSize = availableRegions.size();
         boolean isAnyResourceDepleted = false;
         while (!isAnyResourceDepleted) {
             ServiceSummary serviceSummary = serviceSummaryGenerator.generateService();
-            Service service = new Service(IdGenerator.nextId(), serviceSummary.getName());
+            Service service = new Service(IdGenerator.nextId(), serviceSummary.getName(), availableRegions.get(random.nextInt(availableRegionsSize)));
             List<ResourceRequirement> resourceRequirements = createResourceRequirements(serviceSummary, service);
             for (ResourceRequirement resourceRequirement : resourceRequirements) {
                 Long remainingCapacity = remainingCapacityPerResource.computeIfPresent(resourceRequirement.getResource(),
@@ -143,7 +149,7 @@ public class DataSetGenerator {
     }
 
     private OsdCluster createOsdCluster(OpenShiftCluster openShiftCluster) {
-        return new OsdCluster(IdGenerator.nextId(), (long) (openShiftCluster.getCost() * 1000_000L));
+        return new OsdCluster(IdGenerator.nextId(), (long) (openShiftCluster.getCost() * 1000_000L), regionGenerator.generateRegion());
     }
 
     private List<ResourceCapacity> createResourceCapacities(List<OpenShiftNode> openShiftNodes, OsdCluster osdCluster) {
@@ -163,6 +169,42 @@ public class DataSetGenerator {
 
         static long nextId() {
             return NEXT_ID.getAndIncrement();
+        }
+    }
+
+    private static final class RegionGenerator {
+
+        private static final Region[] REGIONS = {
+                new Region(IdGenerator.nextId(), "us-east-ohio"),
+                new Region(IdGenerator.nextId(), "us-east-northern-virginia"),
+                new Region(IdGenerator.nextId(), "us-west-oregon"),
+                new Region(IdGenerator.nextId(), "us-west-northern-california"),
+                new Region(IdGenerator.nextId(), "europe-frankfurt"),
+                new Region(IdGenerator.nextId(), "europe-milan"),
+                new Region(IdGenerator.nextId(), "europe-london"),
+                new Region(IdGenerator.nextId(), "europe-paris"),
+                new Region(IdGenerator.nextId(), "europe-ireland"),
+                new Region(IdGenerator.nextId(), "europe-stockholm"),
+                new Region(IdGenerator.nextId(), "asia-beijing"),
+                new Region(IdGenerator.nextId(), "asia-ningxia"),
+                new Region(IdGenerator.nextId(), "asia-osaka"),
+                new Region(IdGenerator.nextId(), "asia-singapore"),
+                new Region(IdGenerator.nextId(), "asia-seoul"),
+                new Region(IdGenerator.nextId(), "asia-hong-kong")
+        };
+
+        private final Random random;
+
+        public RegionGenerator(Random random) {
+            this.random = random;
+        }
+
+        Region generateRegion() {
+            return REGIONS[random.nextInt(REGIONS.length)];
+        }
+
+        List<Region> getAllRegions() {
+            return Arrays.asList(REGIONS);
         }
     }
 }

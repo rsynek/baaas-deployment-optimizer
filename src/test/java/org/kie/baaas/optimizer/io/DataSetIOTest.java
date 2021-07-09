@@ -28,12 +28,13 @@ class DataSetIOTest {
         Path testDataSetPath = file.toPath();
 
         DataSet dataSet = dataSetIO.read(testDataSetPath.toFile());
-        int expectedClusterCount = 4;
+        int expectedClusterCount = 2;
         Assertions.assertThat(dataSet.getOpenShiftClusters()).hasSize(expectedClusterCount);
         assertThat(dataSet.getServiceDeploymentSchedule().getOsdClusters()).hasSize(expectedClusterCount);
+        assertThat(dataSet.getServiceDeploymentSchedule().getServices()).hasSize(12);
         List<DataSet.ResourceUtilization> resourceUtilizationList = dataSet.getResourceUtilizationList();
         assertThat(resourceUtilizationList).hasSize(2);
-        assertThat(resourceUtilizationList.get(0).utilization()).isBetween(0.0, 0.6);
-        assertThat(resourceUtilizationList.get(1).utilization()).isBetween(0.0, 0.6);
+        assertThat(resourceUtilizationList.get(0).utilization()).isBetween(0.0, 0.3);
+        assertThat(resourceUtilizationList.get(1).utilization()).isBetween(0.0, 0.3);
     }
 }

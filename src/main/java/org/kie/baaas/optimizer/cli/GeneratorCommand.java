@@ -20,7 +20,7 @@ public class GeneratorCommand implements Runnable {
     @CommandLine.Option(names = {"--max-size"}, required = true, description = "Maximal size of every OSD cluster (worker node count).")
     int maxSize;
 
-    @CommandLine.Option(names = {"--max-utilization"}, defaultValue = "0.6", description = "Maximal utilization of every OSD cluster.")
+    @CommandLine.Option(names = {"--max-utilization"}, defaultValue = "0.5", description = "Maximal utilization of every OSD cluster.")
     double maxUtilization;
 
     private final DataSetGenerator dataSetGenerator;
@@ -36,7 +36,7 @@ public class GeneratorCommand implements Runnable {
     @Override
     public void run() {
         DataSet dataSet = dataSetGenerator.generateDataSet(clusterCount, minSize, maxSize, maxUtilization);
-        String filename = String.format("dataset_%d_%d_%d_%.2f_%.2f.json", clusterCount, minSize, maxSize, maxUtilization);
+        String filename = String.format("dataset_%d_%d_%d_%.2f.json", clusterCount, minSize, maxSize, maxUtilization);
         dataSetIO.write(filename, dataSet);
     }
 }

@@ -1,10 +1,7 @@
 package org.kie.baaas.optimizer.cli;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ExecutionException;
 
 import javax.inject.Inject;
 
@@ -21,10 +18,9 @@ public class SolverOptimizationCommand implements Runnable {
 
     private final SolverManager<ServiceDeploymentSchedule, Long> solverManager;
     private final DataSetIO dataSetIO;
-    private List<SolverJob<ServiceDeploymentSchedule, Long>> solverJobs;
 
     @CommandLine.Parameters
-    File[] datasetFileNames;
+    File datasetFileName;
 
     @Inject
     public SolverOptimizationCommand(SolverManager<ServiceDeploymentSchedule, Long> solverManager, DataSetIO dataSetIO) {
@@ -34,28 +30,22 @@ public class SolverOptimizationCommand implements Runnable {
 
     @Override
     public void run() {
-        CountDownLatch allJobsFinished = new CountDownLatch(datasetFileNames.length);
-        solverJobs = new ArrayList<>(datasetFileNames.length);
+        DataSet dataSet = dataSetIO.read(datasetFileName);
+
         long problemId = 1L;
-        for (File datasetFileName : datasetFileNames) {
-            DataSet dataSet = dataSetIO.read(datasetFileName);
-            SolverJob<ServiceDeploymentSchedule, Long> solverJob
-                    = solverManager.solve(problemId, dataSet.getServiceDeploymentSchedule(), serviceDeploymentSchedule -> {
-                dataSet.setServiceDeploymentSchedule(serviceDeploymentSchedule);
-                dataSetIO.write(createOutputFile(datasetFileName.getName()), dataSet);
-                allJobsFinished.countDown();
-            }, (problemIdErr, throwable) -> {
-                throwable.printStackTrace();
-                allJobsFinished.countDown();
-            });
-            solverJobs.add(solverJob);
+        SolverJob<ServiceDeploymentSchedule, Long> solverJob = solverManager.solve(problemId, dataSet.getServiceDeploymentSchedule());
+
+        ServiceDeploymentSchedule solution;
+        try {
+            solution = solverJob.getFinalBestSolution();
+        } catch (InterruptedException e) {
+            throw new IllegalStateException("Interrupted waiting for a solution.");
+        } catch (ExecutionException e) {
+            throw new IllegalStateException("Solver run has failed.", e.getCause());
         }
 
-        try {
-            allJobsFinished.await();
-        } catch (InterruptedException e) {
-            throw new IllegalStateException("Interrupted waiting for optimization to complete.");
-        }
+        dataSet.setServiceDeploymentSchedule(solution);
+        dataSetIO.write(createOutputFile(datasetFileName.getName()), dataSet);
     }
 
     private String createOutputFile(String inputFileName) {
