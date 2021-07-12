@@ -1,5 +1,7 @@
 package org.kie.baaas.optimizer.solver;
 
+import static org.optaplanner.core.api.score.stream.ConstraintCollectors.sumLong;
+
 import org.kie.baaas.optimizer.domain.OsdCluster;
 import org.kie.baaas.optimizer.domain.ResourceCapacity;
 import org.kie.baaas.optimizer.domain.ResourceRequirement;
@@ -10,17 +12,16 @@ import org.optaplanner.core.api.score.stream.ConstraintFactory;
 import org.optaplanner.core.api.score.stream.ConstraintProvider;
 import org.optaplanner.core.api.score.stream.Joiners;
 
-import static org.optaplanner.core.api.score.stream.ConstraintCollectors.sumLong;
-
 public class ServiceDeploymentConstraintProvider implements ConstraintProvider {
 
     @Override
     public Constraint[] defineConstraints(ConstraintFactory constraintFactory) {
-        return new Constraint[] {
+        return new Constraint[]{
                 safeResourceCapacity(constraintFactory),
                 serviceMoveCost(constraintFactory),
                 clusterCost(constraintFactory),
-                matchingRegion(constraintFactory)
+                matchingRegion(constraintFactory),
+                exclusiveCluster(constraintFactory)
         };
     }
 
@@ -56,5 +57,18 @@ public class ServiceDeploymentConstraintProvider implements ConstraintProvider {
         return constraintFactory.from(Service.class)
                 .filter(service -> service.getRegion() != service.getOsdCluster().getRegion())
                 .penalize("matchingRegion", HardSoftLongScore.ONE_HARD);
+    }
+
+    Constraint exclusiveCluster(ConstraintFactory constraintFactory) {
+        // Penalize for every service running on an exclusive cluster that does not belong to the customer owning the cluster.
+        return constraintFactory.from(Service.class)
+                .ifExists(Service.class,
+                        Joiners.equal(Service::getOsdCluster),
+                        Joiners.filtering((serviceA, serviceB) -> serviceB.getCustomer().isExclusive()
+                                && serviceA.getCustomer() != serviceB.getCustomer()
+                                && serviceA != serviceB
+                        )
+                )
+                .penalize("exclusiveCluster", HardSoftLongScore.ONE_HARD);
     }
 }

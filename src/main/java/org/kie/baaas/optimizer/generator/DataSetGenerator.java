@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 
+import org.kie.baaas.optimizer.domain.Customer;
 import org.kie.baaas.optimizer.domain.OsdCluster;
 import org.kie.baaas.optimizer.domain.Region;
 import org.kie.baaas.optimizer.domain.Resource;
@@ -30,6 +31,7 @@ public class DataSetGenerator {
     private static final long CPU_CORES_MULTIPLIER = 1000_000_000L;
     private static final long MEMORY_MULTIPLIER = 1024L * 1024L * 1024L;
     private static final double RESOURCE_SAFE_CAPACITY_RATIO = 0.8;
+    private static final int EXCLUSIVE_CUSTOMER_SERVICE_MULTIPLIER = 10;
     private final Random random = new Random();
     private final ClusterGenerator clusterGenerator = new ClusterGenerator(random);
     private final ServiceSummaryGenerator serviceSummaryGenerator = new ServiceSummaryGenerator(random);
@@ -40,21 +42,24 @@ public class DataSetGenerator {
     /**
      * Generates a single {@link DataSet} instance given the input parameters.
      *
-     * @param clusterCount        the number of OSD cluster instances
-     * @param minClusterSize      a minimal number of worker nodes in a single OSD cluster
-     * @param maxClusterSize      a maximal number of worker nodes in a single OSD cluster
-     * @param maxUtilizationRatio a total resource utilization ratio that must not be exceeded. A double between 0.0 and 1.0
+     * @param clusterCount           the number of OSD cluster instances
+     * @param minClusterSize         a minimal number of worker nodes in a single OSD cluster
+     * @param maxClusterSize         a maximal number of worker nodes in a single OSD cluster
+     * @param maxUtilizationRatio    a total resource utilization ratio that must not be exceeded. A double between 0.0 and 1.0
+     * @param customerCount          a number of customers
+     * @param exclusiveCustomerRatio a ratio of exclusive customers
      */
-    public DataSet generateDataSet(int clusterCount, int minClusterSize, int maxClusterSize, double maxUtilizationRatio) {
+    public DataSet generateDataSet(int clusterCount, int minClusterSize, int maxClusterSize, double maxUtilizationRatio,
+                                   int customerCount, double exclusiveCustomerRatio) {
         assertNonNegativeInteger(clusterCount, "clusterCount");
         assertNonNegativeInteger(minClusterSize, "minClusterSize");
         assertNonNegativeInteger(maxClusterSize, "maxClusterSize");
-        if (maxUtilizationRatio < 0.0 || maxUtilizationRatio > 1.0) {
-            throw new IllegalArgumentException("maxUtilizationRatio" + "(" + maxUtilizationRatio + ") is a double between 0.0 and 1.0.");
-        }
         if (minClusterSize > maxClusterSize) {
             throw new IllegalArgumentException("The minClusterSize (" + minClusterSize + ") must be lesser or equal to maxClusterSize (" + maxClusterSize + ")");
         }
+        assertRatio(maxUtilizationRatio, "maxUtilizationRatio");
+        assertNonNegativeInteger(customerCount, "customerCount");
+        assertRatio(exclusiveCustomerRatio, "exclusiveCustomerRatio");
 
         List<OpenShiftCluster> openShiftClusters = generateClusters(clusterCount, minClusterSize, maxClusterSize);
         Map<OsdCluster, List<ResourceCapacity>> createOsdClustersWithResources = createOsdClustersWithResources(openShiftClusters);
@@ -74,14 +79,16 @@ public class DataSetGenerator {
             capacityEntry.setValue((long) (capacityEntry.getValue() * maxUtilizationRatio));
         }
 
-        Map<Service, List<ResourceRequirement>> servicesWithResourceRequirements = generateServices(remainingCapacityPerResource, availableRegions);
+        List<Customer> customers = generateCustomers(customerCount, exclusiveCustomerRatio);
+
+        Map<Service, List<ResourceRequirement>> servicesWithResourceRequirements = generateServices(remainingCapacityPerResource, availableRegions, customers);
         List<Service> services = new ArrayList<>(servicesWithResourceRequirements.keySet());
         List<ResourceRequirement> resourceRequirements = servicesWithResourceRequirements.values().stream()
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
 
         ServiceDeploymentSchedule serviceDeploymentSchedule = new ServiceDeploymentSchedule(osdClusters, services,
-                Arrays.asList(cpuResource, memoryResource), resourceCapacities, resourceRequirements, regionGenerator.getAllRegions());
+                Arrays.asList(cpuResource, memoryResource), resourceCapacities, resourceRequirements, regionGenerator.getAllRegions(), customers);
         return new DataSet(openShiftClusters, serviceDeploymentSchedule);
     }
 
@@ -91,11 +98,17 @@ public class DataSetGenerator {
         }
     }
 
+    private void assertRatio(double value, String name) {
+        if (value < 0.0 || value > 1.0) {
+            throw new IllegalArgumentException(name + "(" + value + ") is a double between 0.0 and 1.0.");
+        }
+    }
+
     private List<OpenShiftCluster> generateClusters(int clusters, int minClusterSize, int maxClusterSize) {
         List<OpenShiftCluster> openShiftClusters = new ArrayList<>(clusters);
         for (int i = 0; i < clusters; i++) {
             // For simplicity, use only general instance types.
-            openShiftClusters.add(clusterGenerator.generateCluster(CloudProvider.GOOGLE, nextIntBetween(minClusterSize, maxClusterSize), CloudInstanceType.GENERAL));
+            openShiftClusters.add(clusterGenerator.generateCluster(CloudProvider.AWS, nextIntBetween(minClusterSize, maxClusterSize), CloudInstanceType.GENERAL));
         }
         return openShiftClusters;
     }
@@ -104,8 +117,18 @@ public class DataSetGenerator {
         return min + random.nextInt(max - min + 1);
     }
 
-    private Map<Service, List<ResourceRequirement>> generateServices(Map<Resource, Long> remainingCapacityPerResource, List<Region> availableRegions) {
-        Map<Service, List<ResourceRequirement>> podsWithResourceRequirements = new HashMap<>();
+    private List<Customer> generateCustomers(int count, double exclusiveCustomersRatio) {
+        List<Customer> customers = new ArrayList<>();
+        int exclusiveCustomersEndIndex = (int) (count * exclusiveCustomersRatio);
+        for (int i = 0; i < count; i++) {
+            boolean exclusive = i < exclusiveCustomersEndIndex;
+            customers.add(new Customer(IdGenerator.nextId(), exclusive));
+        }
+        return customers;
+    }
+
+    private Map<Service, List<ResourceRequirement>> generateServices(Map<Resource, Long> remainingCapacityPerResource, List<Region> availableRegions, List<Customer> customers) {
+        Map<Service, List<ResourceRequirement>> servicesWithResourceRequirements = new HashMap<>();
         int availableRegionsSize = availableRegions.size();
         boolean isAnyResourceDepleted = false;
         while (!isAnyResourceDepleted) {
@@ -121,11 +144,53 @@ public class DataSetGenerator {
             }
 
             if (!isAnyResourceDepleted) {
-                podsWithResourceRequirements.put(service, resourceRequirements);
+                servicesWithResourceRequirements.put(service, resourceRequirements);
             }
         }
 
-        return podsWithResourceRequirements;
+        mapServicesToCustomers(servicesWithResourceRequirements.keySet(), customers);
+
+        return servicesWithResourceRequirements;
+    }
+
+    void mapServicesToCustomers(Collection<Service> services, List<Customer> customers) {
+        int exclusiveCustomers = (int) customers.stream().filter(Customer::isExclusive).count();
+        int minimalServicesNeeded = customers.size() - exclusiveCustomers + exclusiveCustomers * EXCLUSIVE_CUSTOMER_SERVICE_MULTIPLIER;
+        int servicesCount = services.size();
+        if (minimalServicesNeeded > servicesCount) {
+            throw new IllegalArgumentException("There are not enough services ("
+                    + servicesCount
+                    + ") to be distributed among customers ("
+                    + customers.size()
+                    + ").");
+        }
+
+        int[] mappingIndexes = new int[servicesCount];
+        int i = 0;
+        int customersSize = customers.size();
+        int customerIndex = 0;
+        while (i < mappingIndexes.length) {
+            boolean exclusiveCustomer = customers.get(customerIndex).isExclusive();
+            if (exclusiveCustomer) {
+                int originalIndex = i;
+                for (; i < originalIndex + EXCLUSIVE_CUSTOMER_SERVICE_MULTIPLIER; i++) {
+                    if (i >= mappingIndexes.length) {
+                        break;
+                    }
+                    mappingIndexes[i] = customerIndex;
+                }
+            } else {
+                mappingIndexes[i++] = customerIndex;
+            }
+            // When we use all customers, start again from the first one.
+            customerIndex = (customerIndex + 1) % customersSize;
+        }
+
+        int serviceIndex = 0;
+        for (Service service : services) {
+            customerIndex = mappingIndexes[serviceIndex++];
+            service.setCustomer(customers.get(customerIndex));
+        }
     }
 
     private List<ResourceRequirement> createResourceRequirements(ServiceSummary serviceSummary, Service service) {

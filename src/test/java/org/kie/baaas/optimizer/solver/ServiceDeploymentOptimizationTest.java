@@ -27,7 +27,7 @@ public class ServiceDeploymentOptimizationTest {
     @Inject
     DataSetIO dataSetIO;
 
-    @Test
+   // @Test
     void solverTest() throws URISyntaxException {
         DataSet dataSet = dataSetIO.read(new File(getClass().getResource(TEST_DATA_SET).toURI()));
         printSchedule(dataSet.getServiceDeploymentSchedule());

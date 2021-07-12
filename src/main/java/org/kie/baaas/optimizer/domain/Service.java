@@ -18,6 +18,8 @@ public class Service extends AbstractIdentifiable {
     private OsdCluster originalOsdCluster;
     @JsonIdentityReference(alwaysAsId = true)
     private Region region;
+    @JsonIdentityReference(alwaysAsId = true)
+    private Customer customer;
 
     public Service() {
         // Required by Jackson and OptaPlanner.
@@ -27,6 +29,13 @@ public class Service extends AbstractIdentifiable {
         super(id);
         this.region = region;
         this.name = name;
+    }
+
+    public Service(long id, String name, Region region, Customer customer) {
+        super(id);
+        this.region = region;
+        this.name = name;
+        this.customer = customer;
     }
 
     public Service(long id, String name, Region region, OsdCluster originalOsdCluster) {
@@ -51,6 +60,14 @@ public class Service extends AbstractIdentifiable {
 
     public Region getRegion() {
         return region;
+    }
+
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
+    }
+
+    public Customer getCustomer() {
+        return customer;
     }
 
     public void setOriginalOsdCluster(OsdCluster originalOsdCluster) {

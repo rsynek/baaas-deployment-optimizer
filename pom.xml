@@ -14,13 +14,6 @@
   <properties>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
-    <version.io.quarkus>1.13.4.Final</version.io.quarkus>
-    <version.org.assertj>3.19.0</version.org.assertj>
-    <version.org.junit>5.7.1</version.org.junit>
-    <version.org.optaplanner>8.7.0.Final</version.org.optaplanner>
-    <!-- Plugin versions -->
-    <version.compiler.plugin>3.8.1</version.compiler.plugin>
-    <version.surefire.plugin>3.0.0-M5</version.surefire.plugin>
   </properties>
 
   <dependencyManagement>
@@ -28,33 +21,23 @@
       <dependency>
         <groupId>io.quarkus</groupId>
         <artifactId>quarkus-bom</artifactId>
-        <version>${version.io.quarkus}</version>
+        <version>1.13.4.Final</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
       <dependency>
         <groupId>org.optaplanner</groupId>
         <artifactId>optaplanner-bom</artifactId>
-        <version>${version.org.optaplanner}</version>
+        <version>8.7.0.Final</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
       <dependency>
         <groupId>org.junit</groupId>
         <artifactId>junit-bom</artifactId>
-        <version>${version.org.junit}</version>
+        <version>5.7.1</version>
         <type>pom</type>
         <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.kie.baaas</groupId>
-        <artifactId>baaas-deployment-optimizer-solver</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.kie.baaas</groupId>
-        <artifactId>baaas-deployment-optimizer-generator</artifactId>
-        <version>${project.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -95,7 +78,13 @@
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
-      <version>${version.org.assertj}</version>
+      <version>3.19.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>3.10.0</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -104,7 +93,8 @@
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>${version.compiler.plugin}</version>
+        <groupId>org.apache.maven.plugins</groupId>
+        <version>3.8.1</version>
       </plugin>
       <plugin>
         <groupId>io.quarkus</groupId>
@@ -123,7 +113,8 @@
       </plugin>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>${version.surefire.plugin}</version>
+        <groupId>org.apache.maven.plugins</groupId>
+        <version>3.0.0-M5</version>
         <configuration>
           <systemPropertyVariables>
             <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>

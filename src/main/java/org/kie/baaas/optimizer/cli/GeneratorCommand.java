@@ -23,6 +23,12 @@ public class GeneratorCommand implements Runnable {
     @CommandLine.Option(names = {"--max-utilization"}, defaultValue = "0.5", description = "Maximal utilization of every OSD cluster.")
     double maxUtilization;
 
+    @CommandLine.Option(names = {"--customers"}, required = true, description = "Number of customers.")
+    int customers;
+
+    @CommandLine.Option(names = {"--exclusive-customers"}, defaultValue = "0.1", description = "Ratio of exclusive customers.")
+    double exclusiveCustomerRatio;
+
     private final DataSetGenerator dataSetGenerator;
 
     private final DataSetIO dataSetIO;
@@ -35,8 +41,8 @@ public class GeneratorCommand implements Runnable {
 
     @Override
     public void run() {
-        DataSet dataSet = dataSetGenerator.generateDataSet(clusterCount, minSize, maxSize, maxUtilization);
-        String filename = String.format("dataset_%d_%d_%d_%.2f.json", clusterCount, minSize, maxSize, maxUtilization);
+        DataSet dataSet = dataSetGenerator.generateDataSet(clusterCount, minSize, maxSize, maxUtilization, customers, exclusiveCustomerRatio);
+        String filename = String.format("dataset_%d_%d_%d_%.2f_%d_%.2f.json", clusterCount, minSize, maxSize, maxUtilization, customers, exclusiveCustomerRatio);
         dataSetIO.write(filename, dataSet);
     }
 }

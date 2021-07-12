@@ -3,6 +3,7 @@ package org.kie.baaas.optimizer.solver;
 import javax.inject.Inject;
 
 import org.junit.jupiter.api.Test;
+import org.kie.baaas.optimizer.domain.Customer;
 import org.kie.baaas.optimizer.domain.OsdCluster;
 import org.kie.baaas.optimizer.domain.Region;
 import org.kie.baaas.optimizer.domain.Resource;
@@ -112,4 +113,33 @@ public class ServiceDeploymentConstraintProviderTest {
                 .given(cluster1, cluster2, service1, service2)
                 .penalizesBy(1);
     }
+
+    @Test
+    void exclusiveCluster() {
+        Customer normalCustomer = new Customer(1L, false);
+        Customer exclusiveCustomer = new Customer(2L, true);
+
+        OsdCluster normalCluster = new OsdCluster(1L, 1, null);
+        OsdCluster exclusiveCluster = new OsdCluster(2L, 1, null);
+
+        Service normalService1 = new Service(1L, "decision1", null, normalCustomer);
+        Service normalService2 = new Service(2L, "decision2", null, normalCustomer);
+        Service normalService3 = new Service(3L, "decision3", null, normalCustomer);
+        Service exclusiveService1 = new Service(4L, "decision4", null, exclusiveCustomer);
+        Service exclusiveService2 = new Service(5L, "decision5", null, exclusiveCustomer);
+
+        normalService1.setOsdCluster(normalCluster);
+        // These two service break the constraint.
+        normalService2.setOsdCluster(exclusiveCluster);
+        normalService3.setOsdCluster(exclusiveCluster);
+
+        exclusiveService1.setOsdCluster(exclusiveCluster);
+        exclusiveService2.setOsdCluster(exclusiveCluster);
+
+        constraintVerifier.verifyThat(ServiceDeploymentConstraintProvider::exclusiveCluster)
+                .given(normalCustomer, exclusiveCustomer, normalCluster, exclusiveCluster, normalService1, normalService2,
+                        normalService3, exclusiveService1, exclusiveService2)
+                .penalizesBy(2);
+    }
+
 }
