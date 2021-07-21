@@ -105,6 +105,15 @@ class ClusterGenerator {
         return new OpenShiftNode(OpenShiftNodeType.MASTER, masterCloudNode);
     }
 
+    /**
+     * A cluster consists of three master nodes and a number of worker nodes. All these nodes must come from a single
+     * cloud provider.
+     * @param cloudProvider cloud provider (AWS, Google, Azure)
+     * @param workerNodeCount number of worker nodes
+     * @param workerNodeInstanceType instance type of worker nodes. A cluster may contain nodes of difference instance
+     *                               type, but the generator does not support that at the moment
+     * @return OpenShiftCluster instance
+     */
     OpenShiftCluster generateCluster(CloudProvider cloudProvider, int workerNodeCount, CloudInstanceType workerNodeInstanceType) {
         List<OpenShiftNode> openShiftNodes = new ArrayList<>();
 

@@ -14,7 +14,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class DataSet {
 
+    /**
+     * Generated clusters with detailed information about costs and resources.
+     */
     private List<OpenShiftCluster> openShiftClusters;
+    /**
+     * The OptaPlanner @PlanningSolution.
+     */
     private ServiceDeploymentSchedule serviceDeploymentSchedule;
 
     public DataSet() {
@@ -26,6 +32,10 @@ public class DataSet {
         this.serviceDeploymentSchedule = serviceDeploymentSchedule;
     }
 
+    /**
+     * Calculates the resource utilization of the clusters by assigned services.
+     * @return list of {@link ResourceUtilization} entries.
+     */
     @JsonIgnore
     public List<ResourceUtilization> getResourceUtilizationList() {
         Map<Resource, Long> totalCapacityPerResourceId = serviceDeploymentSchedule.getResourceCapacities().stream()

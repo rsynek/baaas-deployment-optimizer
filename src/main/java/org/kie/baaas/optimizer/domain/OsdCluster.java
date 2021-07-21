@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference;
 
 public class OsdCluster extends AbstractIdentifiable {
 
+    /**
+     * Artificial {@link OsdCluster} instance to enable over-constrained planning.
+     */
     public static final OsdCluster SINK = new OsdCluster(9999L);
 
     private long costPerHour;

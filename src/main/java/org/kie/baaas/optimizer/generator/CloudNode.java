@@ -1,5 +1,8 @@
 package org.kie.baaas.optimizer.generator;
 
+/**
+ * Represents a virtual machine provided by a {@link CloudProvider}.
+ */
 public class CloudNode {
     private String name;
     private CloudProvider cloudProvider;

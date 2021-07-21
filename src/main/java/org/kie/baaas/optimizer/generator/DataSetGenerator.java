@@ -24,9 +24,6 @@ import org.kie.baaas.optimizer.domain.ServiceDeploymentSchedule;
 @ApplicationScoped
 public class DataSetGenerator {
 
-    // TODO: generate some portion of general, memory-optimized and cpu-optimized clusters, according to best prices.
-    //       general - Google, memory-optimized - Azure, cpu-optimized - AWS (brings also enough memory)
-
     // Using nano cores to avoid losing precision.
     private static final long CPU_CORES_MULTIPLIER = 1000_000_000L;
     private static final long MEMORY_MULTIPLIER = 1024L * 1024L * 1024L;

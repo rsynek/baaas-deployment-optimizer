@@ -20,6 +20,8 @@ class ServiceSummaryGenerator {
     private static final ResourceValueDescriptor CPU = new ResourceValueDescriptor(10_000_000L, 1_000_000_000L);
     // From 200 to 600 MB
     private static final ResourceValueDescriptor MEMORY = new ResourceValueDescriptor(200_000_000L, 600_000_000L);
+
+    // TODO: Use network-related resources when the network capacity of a cluster can be calculated.
     // From 0 to 100 kB
     private static final ResourceValueDescriptor NETWORK_IN = new ResourceValueDescriptor(0L, 100_000L);
     // From 0 to 500 kB
