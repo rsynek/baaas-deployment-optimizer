@@ -57,9 +57,13 @@ public class ExportCommand implements Runnable {
     public String toCsvString(ServiceDeploymentSchedule schedule) {
         Map<OsdCluster, List<ResourceCapacity>> capacitiesPerCluster = schedule.getResourceCapacities().stream()
                 .collect(Collectors.groupingBy(resourceCapacity -> resourceCapacity.getOsdCluster()));
-        Map<OsdCluster, List<Service>> servicesPerCluster = schedule.getServices().stream().collect(Collectors.groupingBy(Service::getOsdCluster));
-        Map<Long, List<ResourceRequirement>> requirementsPerPodId = schedule.getResourceRequirements()
-                .stream().collect(Collectors.groupingBy(resourceRequirement -> resourceRequirement.getService().getId()));
+        Map<OsdCluster, List<Service>> servicesPerCluster = schedule.getServices()
+                .stream()
+                .filter(service -> service.getOsdCluster() != null)
+                .collect(Collectors.groupingBy(Service::getOsdCluster));
+        Map<Long, List<ResourceRequirement>> requirementsPerServiceId = schedule.getResourceRequirements()
+                .stream()
+                .collect(Collectors.groupingBy(resourceRequirement -> resourceRequirement.getService().getId()));
         StringBuilder sb = new StringBuilder();
         for (OsdCluster osdCluster : schedule.getOsdClusters()) {
             sb.append("Cluster " + osdCluster.getId());
@@ -67,6 +71,7 @@ public class ExportCommand implements Runnable {
                     .collect(Collectors.groupingBy(ResourceCapacity::getResource, Collectors.summingLong(ResourceCapacity::getCapacity)));
 
             Map<Resource, Long> usagePerResource = schedule.getResourceRequirements().stream()
+                    .filter(resourceRequirement -> resourceRequirement.getService().getOsdCluster() != null)
                     .filter(resourceRequirement -> resourceRequirement.getService().getOsdCluster().getId().equals(osdCluster.getId()))
                     .collect(Collectors.groupingBy(ResourceRequirement::getResource, Collectors.summingLong(ResourceRequirement::getAmount)));
             List<Service> services = servicesPerCluster.get(osdCluster);
@@ -86,7 +91,7 @@ public class ExportCommand implements Runnable {
                     })
                     .collect(Collectors.joining(" "));
             sb.append(" [ " + usageSummary + " ], ");
-            sb.append(printServices(services, requirementsPerPodId));
+            sb.append(printServices(services, requirementsPerServiceId));
             sb.append("\n");
         }
 

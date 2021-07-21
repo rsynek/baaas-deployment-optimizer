@@ -39,10 +39,14 @@ public class ServiceDeploymentSchedule extends AbstractIdentifiable {
 
     @ValueRangeProvider(id = "clustersRange")
     @ProblemFactCollectionProperty
-    public List<OsdCluster> getOsdClusters() {
+    public List<OsdCluster> getOsdClustersWithSink() {
         List<OsdCluster> clustersWithVirtualValue = new ArrayList<>(osdClusters);
         clustersWithVirtualValue.add(OsdCluster.SINK);
         return clustersWithVirtualValue;
+    }
+
+    public List<OsdCluster> getOsdClusters() {
+        return osdClusters;
     }
 
     @PlanningEntityCollectionProperty

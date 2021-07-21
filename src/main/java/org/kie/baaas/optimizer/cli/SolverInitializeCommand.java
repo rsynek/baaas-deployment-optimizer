@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import javax.inject.Inject;
 
+import org.kie.baaas.optimizer.domain.OsdCluster;
 import org.kie.baaas.optimizer.domain.Service;
 import org.kie.baaas.optimizer.domain.ServiceDeploymentSchedule;
 import org.kie.baaas.optimizer.generator.DataSet;
@@ -55,6 +56,10 @@ public class SolverInitializeCommand implements Runnable {
 
     private void setOriginalClusterAssignments(ServiceDeploymentSchedule solution) {
         for (Service service : solution.getServices()) {
+            // Remove the SINK reference.
+            if (service.getOsdCluster().getId().equals(OsdCluster.SINK.getId())) {
+                service.setOriginalOsdCluster(null);
+            }
             service.setOriginalOsdCluster(service.getOsdCluster());
         }
     }

@@ -5,6 +5,8 @@ import java.util.concurrent.ExecutionException;
 
 import javax.inject.Inject;
 
+import org.kie.baaas.optimizer.domain.OsdCluster;
+import org.kie.baaas.optimizer.domain.Service;
 import org.kie.baaas.optimizer.domain.ServiceDeploymentSchedule;
 import org.kie.baaas.optimizer.generator.DataSet;
 import org.kie.baaas.optimizer.io.DataSetIO;
@@ -42,6 +44,13 @@ public class SolverOptimizationCommand implements Runnable {
             throw new IllegalStateException("Interrupted waiting for a solution.");
         } catch (ExecutionException e) {
             throw new IllegalStateException("Solver run has failed.", e.getCause());
+        }
+
+        // Remove the SINK reference.
+        for (Service service : solution.getServices()) {
+            if (service.getOsdCluster().getId().equals(OsdCluster.SINK.getId())) {
+                service.setOsdCluster(null);
+            }
         }
 
         dataSet.setServiceDeploymentSchedule(solution);
