@@ -2,6 +2,7 @@ package org.kie.baaas.optimizer.io;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 
@@ -37,11 +38,20 @@ public class DataSetIO {
         try {
             return objectMapper.readValue(file, DataSet.class);
         } catch (IOException e) {
-            throw new IllegalArgumentException("Failed reading data set file (" + file.getAbsolutePath() + ").", e);
+            throw new IllegalArgumentException("Failed reading a data set file (" + file.getAbsolutePath() + ").", e);
         }
     }
 
     public void write(String filename, DataSet dataSet) {
+        Path dataFolderPath = Path.of(DATA_FOLDER);
+        if (!Files.exists(dataFolderPath)) {
+            try {
+                Files.createDirectories(dataFolderPath);
+            } catch (IOException e) {
+                throw new IllegalStateException("Failed to create a " + DATA_FOLDER
+                        + " folder to write a data set to a file (" + filename + ").", e);
+            }
+        }
         Path outputFilePath = Path.of(DATA_FOLDER, Objects.requireNonNull(filename));
         write(outputFilePath.toFile(), dataSet);
     }
@@ -55,7 +65,7 @@ public class DataSetIO {
             }
             objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, dataSet);
         } catch (IOException e) {
-            throw new IllegalStateException("Failed to write a data set to file (" + file.getAbsolutePath() + ").", e);
+            throw new IllegalStateException("Failed to write a data set to a file (" + file.getAbsolutePath() + ").", e);
         }
     }
 }
