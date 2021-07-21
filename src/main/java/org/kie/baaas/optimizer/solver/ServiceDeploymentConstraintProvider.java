@@ -1,12 +1,13 @@
 package org.kie.baaas.optimizer.solver;
 
+import static org.kie.baaas.optimizer.domain.OsdCluster.SINK;
 import static org.optaplanner.core.api.score.stream.ConstraintCollectors.sumLong;
 
 import org.kie.baaas.optimizer.domain.OsdCluster;
 import org.kie.baaas.optimizer.domain.ResourceCapacity;
 import org.kie.baaas.optimizer.domain.ResourceRequirement;
 import org.kie.baaas.optimizer.domain.Service;
-import org.optaplanner.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
+import org.optaplanner.core.api.score.buildin.hardmediumsoftlong.HardMediumSoftLongScore;
 import org.optaplanner.core.api.score.stream.Constraint;
 import org.optaplanner.core.api.score.stream.ConstraintFactory;
 import org.optaplanner.core.api.score.stream.ConstraintProvider;
@@ -21,12 +22,14 @@ public class ServiceDeploymentConstraintProvider implements ConstraintProvider {
                 serviceMoveCost(constraintFactory),
                 clusterCost(constraintFactory),
                 matchingRegion(constraintFactory),
-                exclusiveCluster(constraintFactory)
+                exclusiveCluster(constraintFactory),
+                assignServices(constraintFactory)
         };
     }
 
     Constraint safeResourceCapacity(ConstraintFactory constraintFactory) {
         return constraintFactory.from(Service.class)
+                .filter(service -> service.getOsdCluster() != SINK)
                 .join(ResourceCapacity.class, Joiners.equal(Service::getOsdCluster, ResourceCapacity::getOsdCluster))
                 .join(ResourceRequirement.class,
                         Joiners.equal((service, resourceCapacity) -> service.getId(), resourceRequirement -> resourceRequirement.getService().getId()),
@@ -37,31 +40,35 @@ public class ServiceDeploymentConstraintProvider implements ConstraintProvider {
                         (service, resourceCapacity, resourceRequirement) -> resourceCapacity,
                         sumLong((pod, resourceCapacity, resourceRequirement) -> resourceRequirement.getAmount()))
                 .filter((cluster, resourceCapacity, usagePerNode) -> usagePerNode > resourceCapacity.getSafeCapacity())
-                .penalizeLong("safeResourceCapacity", HardSoftLongScore.ONE_HARD,
+                .penalizeLong("safeResourceCapacity", HardMediumSoftLongScore.ONE_HARD,
                         (cluster, resourceCapacity, usagePerNode) -> usagePerNode - resourceCapacity.getSafeCapacity());
     }
 
     Constraint clusterCost(ConstraintFactory constraintFactory) {
         return constraintFactory.from(Service.class)
+                .filter(service -> service.getOsdCluster() != SINK)
                 .groupBy(service -> service.getOsdCluster())
-                .penalizeLong("clusterCost", HardSoftLongScore.ONE_SOFT, OsdCluster::getCostPerHour);
+                .penalizeLong("clusterCost", HardMediumSoftLongScore.ONE_SOFT, OsdCluster::getCostPerHour);
     }
 
     Constraint serviceMoveCost(ConstraintFactory constraintFactory) {
         return constraintFactory.from(Service.class)
+                .filter(service -> service.getOsdCluster() != SINK)
                 .filter(service -> service.isMoved())
-                .penalize("serviceMoveCost", HardSoftLongScore.ONE_SOFT);
+                .penalize("serviceMoveCost", HardMediumSoftLongScore.ONE_SOFT);
     }
 
     Constraint matchingRegion(ConstraintFactory constraintFactory) {
         return constraintFactory.from(Service.class)
+                .filter(service -> service.getOsdCluster() != SINK)
                 .filter(service -> service.getRegion() != service.getOsdCluster().getRegion())
-                .penalize("matchingRegion", HardSoftLongScore.ONE_HARD);
+                .penalize("matchingRegion", HardMediumSoftLongScore.ONE_HARD);
     }
 
     Constraint exclusiveCluster(ConstraintFactory constraintFactory) {
         // Penalize for every service running on an exclusive cluster that does not belong to the customer owning the cluster.
         return constraintFactory.from(Service.class)
+                .filter(service -> service.getOsdCluster() != SINK)
                 .ifExists(Service.class,
                         Joiners.equal(Service::getOsdCluster),
                         Joiners.filtering((serviceA, serviceB) -> serviceB.getCustomer().isExclusive()
@@ -69,6 +76,12 @@ public class ServiceDeploymentConstraintProvider implements ConstraintProvider {
                                 && serviceA != serviceB
                         )
                 )
-                .penalize("exclusiveCluster", HardSoftLongScore.ONE_HARD);
+                .penalize("exclusiveCluster", HardMediumSoftLongScore.ONE_HARD);
+    }
+
+    Constraint assignServices(ConstraintFactory constraintFactory) {
+        return constraintFactory.from(Service.class)
+                .filter(service -> service.getOsdCluster() == SINK)
+                .penalize("assignServices", HardMediumSoftLongScore.ONE_MEDIUM);
     }
 }

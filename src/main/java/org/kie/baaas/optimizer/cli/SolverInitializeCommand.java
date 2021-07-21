@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import javax.inject.Inject;
 
+import org.kie.baaas.optimizer.domain.Service;
 import org.kie.baaas.optimizer.domain.ServiceDeploymentSchedule;
 import org.kie.baaas.optimizer.generator.DataSet;
 import org.kie.baaas.optimizer.io.DataSetIO;
@@ -18,7 +19,7 @@ import org.optaplanner.core.config.solver.SolverConfig;
 import picocli.CommandLine;
 
 @CommandLine.Command(name = "init", description = "Initializes the solution by running a Construction Heuristic.")
-public class SolverConstructionHeuristicCommand implements Runnable {
+public class SolverInitializeCommand implements Runnable {
 
     @CommandLine.Parameters(index = "0")
     File inputFile;
@@ -30,7 +31,7 @@ public class SolverConstructionHeuristicCommand implements Runnable {
     private final DataSetIO dataSetIO;
 
     @Inject
-    public SolverConstructionHeuristicCommand(SolverConfig solverConfig, DataSetIO dataSetIO) {
+    public SolverInitializeCommand(SolverConfig solverConfig, DataSetIO dataSetIO) {
         this.solverConfig = solverConfig;
         this.dataSetIO = dataSetIO;
     }
@@ -42,13 +43,19 @@ public class SolverConstructionHeuristicCommand implements Runnable {
         ServiceDeploymentSchedule problem = Objects.requireNonNull(dataSet.getServiceDeploymentSchedule());
         Solver<ServiceDeploymentSchedule> solver = buildSolverWithConstructionHeuristicOnly();
         ServiceDeploymentSchedule solution = solver.solve(problem);
-
+        setOriginalClusterAssignments(solution);
         dataSet.setServiceDeploymentSchedule(solution);
 
         if (outputFile != null) {
             dataSetIO.write(outputFile, dataSet);
         } else {
             dataSetIO.write(createDefaultOutputFile(inputFile.getName()), dataSet);
+        }
+    }
+
+    private void setOriginalClusterAssignments(ServiceDeploymentSchedule solution) {
+        for (Service service : solution.getServices()) {
+            service.setOriginalOsdCluster(service.getOsdCluster());
         }
     }
 

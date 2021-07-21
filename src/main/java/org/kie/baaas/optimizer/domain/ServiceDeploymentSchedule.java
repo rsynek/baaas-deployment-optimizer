@@ -1,5 +1,6 @@
 package org.kie.baaas.optimizer.domain;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.optaplanner.core.api.domain.solution.PlanningEntityCollectionProperty;
@@ -7,7 +8,7 @@ import org.optaplanner.core.api.domain.solution.PlanningScore;
 import org.optaplanner.core.api.domain.solution.PlanningSolution;
 import org.optaplanner.core.api.domain.solution.ProblemFactCollectionProperty;
 import org.optaplanner.core.api.domain.valuerange.ValueRangeProvider;
-import org.optaplanner.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
+import org.optaplanner.core.api.score.buildin.hardmediumsoftlong.HardMediumSoftLongScore;
 
 @PlanningSolution
 public class ServiceDeploymentSchedule extends AbstractIdentifiable {
@@ -18,7 +19,7 @@ public class ServiceDeploymentSchedule extends AbstractIdentifiable {
     private List<ResourceRequirement> resourceRequirements;
     private List<Region> regions;
     private List<Customer> customers;
-    private HardSoftLongScore score;
+    private HardMediumSoftLongScore score;
 
     public ServiceDeploymentSchedule() {
         // Required by Jackson.
@@ -39,7 +40,9 @@ public class ServiceDeploymentSchedule extends AbstractIdentifiable {
     @ValueRangeProvider(id = "clustersRange")
     @ProblemFactCollectionProperty
     public List<OsdCluster> getOsdClusters() {
-        return osdClusters;
+        List<OsdCluster> clustersWithVirtualValue = new ArrayList<>(osdClusters);
+        clustersWithVirtualValue.add(OsdCluster.SINK);
+        return clustersWithVirtualValue;
     }
 
     @PlanningEntityCollectionProperty
@@ -73,11 +76,11 @@ public class ServiceDeploymentSchedule extends AbstractIdentifiable {
     }
 
     @PlanningScore
-    public HardSoftLongScore getScore() {
+    public HardMediumSoftLongScore getScore() {
         return score;
     }
 
-    public void setScore(HardSoftLongScore score) {
+    public void setScore(HardMediumSoftLongScore score) {
         this.score = score;
     }
 }

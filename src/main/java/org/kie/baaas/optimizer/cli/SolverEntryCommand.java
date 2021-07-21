@@ -5,7 +5,7 @@ import picocli.CommandLine;
 
 @TopCommand
 @CommandLine.Command(mixinStandardHelpOptions = true,
-        subcommands = { GeneratorCommand.class, SolverConstructionHeuristicCommand.class, SolverOptimizationCommand.class, ExportCommand.class })
+        subcommands = { GeneratorCommand.class, SolverInitializeCommand.class, SolverOptimizationCommand.class, ExportCommand.class })
 public class SolverEntryCommand {
 
 }
