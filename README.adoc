@@ -1,0 +1,29 @@
+= BAaaS Deployment Optimizer
+
+The project shows assignment of service to OSD clusters to optimize resource utilization and satisfy
+various constraints.
+
+== Running the Deployment Optimizer
+
+=== Data set generation
+To generate a data set, execute `./run.sh generate` and provide all parameters for data set generation.
+
+For example, running:
+
+`./run.sh generate --cluster-count=5 --customers=10 --exclusive-customers=0.1 --max-size=20 --min-size=3 --max-utilization=0.2`
+
+generates a data set consisting of 5 OSD clusters each having between 3 and 20 worker nodes.
+It also generates enough services to simulate a 20% resource utilization.
+Each of the services belongs to one of the 10 generated customers.
+10% of the customers are exclusive, which means that their services run on dedicated clusters
+where no other service can run.
+
+=== Solving a data set
+
+To solve an existing data set, execute `./run.sh solve data/${data_set_file_name}`
+
+== Exporting a data set
+
+Currently, the tool is capable of exporting a data set to a CSV file.
+
+To export a data set to a CSV file, execute `./run.sh export data/${data_set_file_name}`
