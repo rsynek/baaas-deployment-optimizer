@@ -33,11 +33,6 @@ public class DataSetIO {
         this.objectMapper = objectMapper;
     }
 
-    public DataSet read(String filename) {
-        Path inputFilePath = Path.of(DATA_FOLDER, Objects.requireNonNull(filename));
-        return read(inputFilePath.toFile());
-    }
-
     public DataSet read(File file) {
         if (!file.exists()) {
             throw new IllegalArgumentException("The data set file (" + file.getAbsolutePath() + ") does not exist.");
