@@ -19,6 +19,7 @@ public class ServiceDeploymentSchedule extends AbstractIdentifiable {
     private List<ResourceRequirement> resourceRequirements;
     private List<Region> regions;
     private List<Customer> customers;
+    private List<ResourceBalance> resourceBalances;
     private HardMediumSoftLongScore score;
 
     public ServiceDeploymentSchedule() {
@@ -27,7 +28,7 @@ public class ServiceDeploymentSchedule extends AbstractIdentifiable {
 
     public ServiceDeploymentSchedule(List<OsdCluster> osdClusters, List<Service> services, List<Resource> resources,
                                      List<ResourceCapacity> resourceCapacities, List<ResourceRequirement> resourceRequirements,
-                                     List<Region> regions, List<Customer> customers) {
+                                     List<Region> regions, List<Customer> customers, List<ResourceBalance> resourceBalances) {
         this.osdClusters = osdClusters;
         this.services = services;
         this.resources = resources;
@@ -35,6 +36,7 @@ public class ServiceDeploymentSchedule extends AbstractIdentifiable {
         this.resourceRequirements = resourceRequirements;
         this.regions = regions;
         this.customers = customers;
+        this.resourceBalances = resourceBalances;
     }
 
     @ValueRangeProvider(id = "clustersRange")
@@ -77,6 +79,11 @@ public class ServiceDeploymentSchedule extends AbstractIdentifiable {
     @ProblemFactCollectionProperty
     public List<Customer> getCustomers() {
         return customers;
+    }
+
+    @ProblemFactCollectionProperty
+    public List<ResourceBalance> getResourceBalances() {
+        return resourceBalances;
     }
 
     @PlanningScore

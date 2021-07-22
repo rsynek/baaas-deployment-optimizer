@@ -1,5 +1,6 @@
 package org.kie.baaas.optimizer.domain;
 
+import java.util.List;
 import java.util.Objects;
 
 import org.optaplanner.core.api.domain.entity.PlanningEntity;
@@ -20,6 +21,8 @@ public class Service extends AbstractIdentifiable {
     private Region region;
     @JsonIdentityReference(alwaysAsId = true)
     private Customer customer;
+    @JsonIgnore
+    private List<ResourceRequirement> resourceRequirements;
 
     public Service() {
         // Required by Jackson and OptaPlanner.
@@ -76,6 +79,15 @@ public class Service extends AbstractIdentifiable {
 
     public OsdCluster getOriginalOsdCluster() {
         return originalOsdCluster;
+    }
+
+    public void setResourceRequirements(List<ResourceRequirement> resourceRequirements) {
+        this.resourceRequirements = resourceRequirements;
+    }
+
+    public long getUsage(Resource resource) {
+        return resource.getIndex() >= resourceRequirements.size() ?
+                0L : resourceRequirements.get(resource.getIndex()).getAmount();
     }
 
     @JsonIgnore

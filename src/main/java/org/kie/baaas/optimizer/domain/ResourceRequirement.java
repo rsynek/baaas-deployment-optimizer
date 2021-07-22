@@ -2,11 +2,11 @@ package org.kie.baaas.optimizer.domain;
 
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 
-public class ResourceRequirement extends AbstractIdentifiable {
+public class ResourceRequirement extends AbstractIdentifiable implements Comparable<ResourceRequirement> {
 
-    @JsonIdentityReference(alwaysAsId=true)
+    @JsonIdentityReference(alwaysAsId = true)
     private Service service;
-    @JsonIdentityReference(alwaysAsId=true)
+    @JsonIdentityReference(alwaysAsId = true)
     private Resource resource;
     private long amount;
 
@@ -37,5 +37,10 @@ public class ResourceRequirement extends AbstractIdentifiable {
 
     public long getAmount() {
         return amount;
+    }
+
+    @Override
+    public int compareTo(ResourceRequirement other) {
+        return getResource().getIndex() - other.getResource().getIndex();
     }
 }

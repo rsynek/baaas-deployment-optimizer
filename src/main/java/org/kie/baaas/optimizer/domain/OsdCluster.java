@@ -1,6 +1,9 @@
 package org.kie.baaas.optimizer.domain;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class OsdCluster extends AbstractIdentifiable {
 
@@ -12,6 +15,9 @@ public class OsdCluster extends AbstractIdentifiable {
     private long costPerHour;
     @JsonIdentityReference(alwaysAsId = true)
     private Region region;
+
+    @JsonIgnore
+    private List<ResourceCapacity> resourceCapacities;
 
     public OsdCluster() {
         // Required by Jackson.
@@ -33,5 +39,13 @@ public class OsdCluster extends AbstractIdentifiable {
 
     public Region getRegion() {
         return region;
+    }
+
+    public void setResourceCapacities(List<ResourceCapacity> resourceCapacities) {
+        this.resourceCapacities = resourceCapacities;
+    }
+
+    public ResourceCapacity getMachineCapacity(Resource resource) {
+        return resourceCapacities.get(resource.getIndex());
     }
 }

@@ -3634,6 +3634,13 @@
       "id" : 60,
       "exclusive" : false
     } ],
+    "resourceBalances" : [{
+      "id" : 1111,
+      "originResource" : 19,
+      "targetResource" : 20,
+      "multiplicand" : 4
+    }
+    ],
     "score" : null
   }
 }

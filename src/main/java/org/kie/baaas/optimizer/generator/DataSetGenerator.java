@@ -16,6 +16,7 @@ import org.kie.baaas.optimizer.domain.Customer;
 import org.kie.baaas.optimizer.domain.OsdCluster;
 import org.kie.baaas.optimizer.domain.Region;
 import org.kie.baaas.optimizer.domain.Resource;
+import org.kie.baaas.optimizer.domain.ResourceBalance;
 import org.kie.baaas.optimizer.domain.ResourceCapacity;
 import org.kie.baaas.optimizer.domain.ResourceRequirement;
 import org.kie.baaas.optimizer.domain.Service;
@@ -33,8 +34,8 @@ public class DataSetGenerator {
     private final ClusterGenerator clusterGenerator = new ClusterGenerator(random);
     private final ServiceSummaryGenerator serviceSummaryGenerator = new ServiceSummaryGenerator(random);
     private final RegionGenerator regionGenerator = new RegionGenerator(random);
-    private final Resource cpuResource = new Resource(IdGenerator.nextId(), RESOURCE_SAFE_CAPACITY_RATIO);
-    private final Resource memoryResource = new Resource(IdGenerator.nextId(), RESOURCE_SAFE_CAPACITY_RATIO);
+    private final Resource cpuResource = new Resource(IdGenerator.nextId(), 0, RESOURCE_SAFE_CAPACITY_RATIO);
+    private final Resource memoryResource = new Resource(IdGenerator.nextId(), 1, RESOURCE_SAFE_CAPACITY_RATIO);
 
     /**
      * Generates a single {@link DataSet} instance given the input parameters.
@@ -84,8 +85,10 @@ public class DataSetGenerator {
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
 
+        ResourceBalance resourceBalance = new ResourceBalance(IdGenerator.nextId(),cpuResource, memoryResource, 4);
         ServiceDeploymentSchedule serviceDeploymentSchedule = new ServiceDeploymentSchedule(osdClusters, services,
-                Arrays.asList(cpuResource, memoryResource), resourceCapacities, resourceRequirements, regionGenerator.getAllRegions(), customers);
+                Arrays.asList(cpuResource, memoryResource), resourceCapacities, resourceRequirements, regionGenerator.getAllRegions(),
+                customers, Arrays.asList(resourceBalance));
         return new DataSet(openShiftClusters, serviceDeploymentSchedule);
     }
 

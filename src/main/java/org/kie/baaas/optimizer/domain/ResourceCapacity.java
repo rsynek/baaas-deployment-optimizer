@@ -2,7 +2,7 @@ package org.kie.baaas.optimizer.domain;
 
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 
-public class ResourceCapacity extends AbstractIdentifiable {
+public class ResourceCapacity extends AbstractIdentifiable implements Comparable<ResourceCapacity> {
 
     @JsonIdentityReference(alwaysAsId=true)
     private OsdCluster osdCluster;
@@ -41,5 +41,10 @@ public class ResourceCapacity extends AbstractIdentifiable {
 
     public long getSafeCapacity() {
         return (long) Math.ceil(getCapacity() * getResource().getSafeCapacityRatio());
+    }
+
+    @Override
+    public int compareTo(ResourceCapacity other) {
+        return getResource().getIndex() - other.getResource().getIndex();
     }
 }

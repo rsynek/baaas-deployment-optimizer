@@ -4,6 +4,7 @@ import static org.kie.baaas.optimizer.domain.OsdCluster.SINK;
 import static org.optaplanner.core.api.score.stream.ConstraintCollectors.sumLong;
 
 import org.kie.baaas.optimizer.domain.OsdCluster;
+import org.kie.baaas.optimizer.domain.ResourceBalance;
 import org.kie.baaas.optimizer.domain.ResourceCapacity;
 import org.kie.baaas.optimizer.domain.ResourceRequirement;
 import org.kie.baaas.optimizer.domain.Service;
@@ -24,6 +25,7 @@ public class ServiceDeploymentConstraintProvider implements ConstraintProvider {
                 antiLoadBalancing(constraintFactory),
                 matchingRegion(constraintFactory),
                 exclusiveCluster(constraintFactory),
+                balanceCost(constraintFactory),
                 assignServices(constraintFactory)
         };
     }
@@ -48,14 +50,14 @@ public class ServiceDeploymentConstraintProvider implements ConstraintProvider {
     Constraint clusterCost(ConstraintFactory constraintFactory) {
         return constraintFactory.from(Service.class)
                 .filter(service -> service.getOsdCluster() != SINK)
-                .groupBy(service -> service.getOsdCluster())
+                .groupBy(Service::getOsdCluster)
                 .penalizeLong("clusterCost", HardMediumSoftLongScore.ONE_SOFT, OsdCluster::getCostPerHour);
     }
 
     Constraint serviceMoveCost(ConstraintFactory constraintFactory) {
         return constraintFactory.from(Service.class)
                 .filter(service -> service.getOsdCluster() != SINK)
-                .filter(service -> service.isMoved())
+                .filter(Service::isMoved)
                 .penalize("serviceMoveCost", HardMediumSoftLongScore.ONE_SOFT);
     }
 
@@ -74,7 +76,6 @@ public class ServiceDeploymentConstraintProvider implements ConstraintProvider {
                         Joiners.equal(Service::getOsdCluster),
                         Joiners.filtering((serviceA, serviceB) -> serviceB.getCustomer().isExclusive()
                                 && serviceA.getCustomer() != serviceB.getCustomer()
-                                && serviceA != serviceB
                         )
                 )
                 .penalize("exclusiveCluster", HardMediumSoftLongScore.ONE_HARD);
@@ -95,6 +96,26 @@ public class ServiceDeploymentConstraintProvider implements ConstraintProvider {
                 .filter((cluster, resourceCapacity, usagePerCluster) -> usagePerCluster < resourceCapacity.getSafeCapacity())
                 .penalizeLong("antiLoadBalancing", HardMediumSoftLongScore.ONE_SOFT,
                         (osdCluster, resourceCapacity, usagePerCluster) -> resourceCapacity.getSafeCapacity() - usagePerCluster);
+    }
+
+    Constraint balanceCost(ConstraintFactory constraintFactory) {
+        return constraintFactory.from(ResourceBalance.class)
+                .join(constraintFactory.from(Service.class)
+                        .filter(service -> service.getOsdCluster() != SINK)
+                )
+                .groupBy((resourceBalance, service) -> resourceBalance,
+                        (resourceBalance, service) -> service.getOsdCluster(),
+                        sumLong((resourceBalance, service) -> service.getUsage(resourceBalance.getOriginResource())),
+                        sumLong((resourceBalance, service) -> service.getUsage(resourceBalance.getTargetResource())))
+                .penalizeLong("balanceCost", HardMediumSoftLongScore.ONE_SOFT, this::balanceCost);
+    }
+
+    private long balanceCost(ResourceBalance resourceBalance, OsdCluster osdCluster, long originUsage, long targetUsage) {
+        long originalAvailability = osdCluster.getMachineCapacity(resourceBalance.getOriginResource()).getSafeCapacity()
+                - originUsage;
+        long targetAvailability = osdCluster.getMachineCapacity(resourceBalance.getTargetResource()).getSafeCapacity() - targetUsage;
+        long lackingAvailability = (resourceBalance.getMultiplicand() * originalAvailability) - targetAvailability;
+        return Math.max(lackingAvailability, 0L);
     }
 
     Constraint assignServices(ConstraintFactory constraintFactory) {
