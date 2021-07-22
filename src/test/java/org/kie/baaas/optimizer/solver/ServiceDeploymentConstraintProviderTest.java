@@ -2,6 +2,7 @@ package org.kie.baaas.optimizer.solver;
 
 import javax.inject.Inject;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.kie.baaas.optimizer.domain.Customer;
 import org.kie.baaas.optimizer.domain.OsdCluster;
@@ -140,6 +141,37 @@ public class ServiceDeploymentConstraintProviderTest {
                 .given(normalCustomer, exclusiveCustomer, normalCluster, exclusiveCluster, normalService1, normalService2,
                         normalService3, exclusiveService1, exclusiveService2)
                 .penalizesBy(2);
+    }
+
+    @Test
+    void antiLoadBalancing() {
+        Resource cpu = new Resource(1L, 0.8);
+        Resource memory = new Resource(2L, 0.8);
+
+        OsdCluster cluster1 = new OsdCluster(1L, 5, null);
+        OsdCluster cluster2 = new OsdCluster(2L, 5, null);
+
+        ResourceCapacity cpuCapacityCluster1 = new ResourceCapacity(cluster1, cpu, 10L);
+        ResourceCapacity memoryCapacityCluster1 = new ResourceCapacity(cluster1, memory, 10L);
+        ResourceCapacity cpuCapacityCluster2 = new ResourceCapacity(cluster2, cpu, 10L);
+        ResourceCapacity memoryCapacityCluster2 = new ResourceCapacity(cluster2, memory, 10L);
+
+        Service service1 = new Service(1L, "decision1", null);
+        Service service2 = new Service(2L, "decision2", null);
+
+        service1.setOsdCluster(cluster1);
+        service2.setOsdCluster(cluster2);
+
+        ResourceRequirement cpuRequirementservice1 = new ResourceRequirement(service1, cpu, 8L);
+        ResourceRequirement memoryRequirementservice1 = new ResourceRequirement(service1, memory, 8L);
+        ResourceRequirement cpuRequirementservice2 = new ResourceRequirement(service2, cpu, 5L);
+        ResourceRequirement memoryRequirementservice2 = new ResourceRequirement(service2, memory, 5L);
+
+        constraintVerifier.verifyThat(ServiceDeploymentConstraintProvider::antiLoadBalancing)
+                .given(cpu, memory, cluster1, cluster2, cpuCapacityCluster1, memoryCapacityCluster1, cpuCapacityCluster2,
+                        memoryCapacityCluster2, service1, service2, cpuRequirementservice1, memoryRequirementservice1,
+                        cpuRequirementservice2, memoryRequirementservice2)
+                .penalizesBy(3 * 2);
     }
 
 }

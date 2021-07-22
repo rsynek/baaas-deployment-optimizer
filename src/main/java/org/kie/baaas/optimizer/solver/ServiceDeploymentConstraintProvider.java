@@ -21,6 +21,7 @@ public class ServiceDeploymentConstraintProvider implements ConstraintProvider {
                 safeResourceCapacity(constraintFactory),
                 serviceMoveCost(constraintFactory),
                 clusterCost(constraintFactory),
+                antiLoadBalancing(constraintFactory),
                 matchingRegion(constraintFactory),
                 exclusiveCluster(constraintFactory),
                 assignServices(constraintFactory)
@@ -39,9 +40,9 @@ public class ServiceDeploymentConstraintProvider implements ConstraintProvider {
                         (service, resourceCapacity, resourceRequirement) -> service.getOsdCluster(),
                         (service, resourceCapacity, resourceRequirement) -> resourceCapacity,
                         sumLong((pod, resourceCapacity, resourceRequirement) -> resourceRequirement.getAmount()))
-                .filter((cluster, resourceCapacity, usagePerNode) -> usagePerNode > resourceCapacity.getSafeCapacity())
+                .filter((cluster, resourceCapacity, usagePerCluster) -> usagePerCluster > resourceCapacity.getSafeCapacity())
                 .penalizeLong("safeResourceCapacity", HardMediumSoftLongScore.ONE_HARD,
-                        (cluster, resourceCapacity, usagePerNode) -> usagePerNode - resourceCapacity.getSafeCapacity());
+                        (cluster, resourceCapacity, usagePerCluster) -> usagePerCluster - resourceCapacity.getSafeCapacity());
     }
 
     Constraint clusterCost(ConstraintFactory constraintFactory) {
@@ -77,6 +78,23 @@ public class ServiceDeploymentConstraintProvider implements ConstraintProvider {
                         )
                 )
                 .penalize("exclusiveCluster", HardMediumSoftLongScore.ONE_HARD);
+    }
+
+    Constraint antiLoadBalancing(ConstraintFactory constraintFactory) {
+        return constraintFactory.from(Service.class)
+                .filter(service -> service.getOsdCluster() != SINK)
+                .join(ResourceCapacity.class, Joiners.equal(Service::getOsdCluster, ResourceCapacity::getOsdCluster))
+                .join(ResourceRequirement.class,
+                        Joiners.equal((service, resourceCapacity) -> service.getId(), resourceRequirement -> resourceRequirement.getService().getId()),
+                        Joiners.equal((service, resourceCapacity) -> resourceCapacity.getResource(), ResourceRequirement::getResource)
+                )
+                .groupBy(
+                        (service, resourceCapacity, resourceRequirement) -> service.getOsdCluster(),
+                        (service, resourceCapacity, resourceRequirement) -> resourceCapacity,
+                        sumLong((pod, resourceCapacity, resourceRequirement) -> resourceRequirement.getAmount()))
+                .filter((cluster, resourceCapacity, usagePerCluster) -> usagePerCluster < resourceCapacity.getSafeCapacity())
+                .penalizeLong("antiLoadBalancing", HardMediumSoftLongScore.ONE_SOFT,
+                        (osdCluster, resourceCapacity, usagePerCluster) -> resourceCapacity.getSafeCapacity() - usagePerCluster);
     }
 
     Constraint assignServices(ConstraintFactory constraintFactory) {
