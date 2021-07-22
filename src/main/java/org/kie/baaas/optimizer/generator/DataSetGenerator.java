@@ -3,6 +3,7 @@ package org.kie.baaas.optimizer.generator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -88,7 +89,7 @@ public class DataSetGenerator {
         ResourceBalance resourceBalance = new ResourceBalance(IdGenerator.nextId(),cpuResource, memoryResource, 4);
         ServiceDeploymentSchedule serviceDeploymentSchedule = new ServiceDeploymentSchedule(osdClusters, services,
                 Arrays.asList(cpuResource, memoryResource), resourceCapacities, resourceRequirements, regionGenerator.getAllRegions(),
-                customers, Arrays.asList(resourceBalance));
+                customers, Collections.singletonList(resourceBalance));
         return new DataSet(openShiftClusters, serviceDeploymentSchedule);
     }
 

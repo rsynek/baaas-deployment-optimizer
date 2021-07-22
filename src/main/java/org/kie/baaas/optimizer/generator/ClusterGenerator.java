@@ -116,14 +116,10 @@ class ClusterGenerator {
      */
     OpenShiftCluster generateCluster(CloudProvider cloudProvider, int workerNodeCount, CloudInstanceType workerNodeInstanceType) {
         List<OpenShiftNode> openShiftNodes = new ArrayList<>();
-
         for (int i = 0; i < MASTER_NODE_COUNT; i++) {
             openShiftNodes.add(generateOpenShiftMasterNode(cloudProvider, workerNodeCount));
         }
-
         openShiftNodes.addAll(generateOpenShiftNodes(cloudProvider, OpenShiftNodeType.WORKER, workerNodeInstanceType, workerNodeCount));
-
-        OpenShiftCluster openShiftCluster = new OpenShiftCluster(cloudProvider, openShiftNodes);
-        return openShiftCluster;
+        return new OpenShiftCluster(cloudProvider, openShiftNodes);
     }
 }

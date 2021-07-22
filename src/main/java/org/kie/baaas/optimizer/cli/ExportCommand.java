@@ -56,7 +56,7 @@ public class ExportCommand implements Runnable {
 
     public String toCsvString(ServiceDeploymentSchedule schedule) {
         Map<OsdCluster, List<ResourceCapacity>> capacitiesPerCluster = schedule.getResourceCapacities().stream()
-                .collect(Collectors.groupingBy(resourceCapacity -> resourceCapacity.getOsdCluster()));
+                .collect(Collectors.groupingBy(ResourceCapacity::getOsdCluster));
         Map<OsdCluster, List<Service>> servicesPerCluster = schedule.getServices()
                 .stream()
                 .filter(service -> service.getOsdCluster() != null)
@@ -66,7 +66,7 @@ public class ExportCommand implements Runnable {
                 .collect(Collectors.groupingBy(resourceRequirement -> resourceRequirement.getService().getId()));
         StringBuilder sb = new StringBuilder();
         for (OsdCluster osdCluster : schedule.getOsdClusters()) {
-            sb.append("Cluster " + osdCluster.getId());
+            sb.append("Cluster ").append(osdCluster.getId());
             Map<Resource, Long> resourceCapacities = capacitiesPerCluster.get(osdCluster).stream()
                     .collect(Collectors.groupingBy(ResourceCapacity::getResource, Collectors.summingLong(ResourceCapacity::getCapacity)));
 
@@ -90,7 +90,7 @@ public class ExportCommand implements Runnable {
 
                     })
                     .collect(Collectors.joining(" "));
-            sb.append(" [ " + usageSummary + " ], ");
+            sb.append(" [ ").append(usageSummary).append(" ], ");
             sb.append(printServices(services, requirementsPerServiceId));
             sb.append("\n");
         }

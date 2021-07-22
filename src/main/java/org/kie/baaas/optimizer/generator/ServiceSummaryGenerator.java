@@ -36,8 +36,7 @@ class ServiceSummaryGenerator {
     ServiceSummary generateService() {
         long cpuNanoCores = nextLong(CPU.minValue, CPU.maxValue);
         long memoryBytes = nextLong(MEMORY.minValue, MEMORY.maxValue);
-        ServiceSummary serviceSummary = new ServiceSummary(generateServiceName(), cpuNanoCores, memoryBytes);
-        return serviceSummary;
+        return new ServiceSummary(generateServiceName(), cpuNanoCores, memoryBytes);
     }
 
     private String generateServiceName() {
