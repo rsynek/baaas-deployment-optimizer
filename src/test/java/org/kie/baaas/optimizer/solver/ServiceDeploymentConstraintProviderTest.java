@@ -173,7 +173,7 @@ public class ServiceDeploymentConstraintProviderTest {
                 .given(cpu, memory, cluster1, cluster2, cpuCapacityCluster1, memoryCapacityCluster1, cpuCapacityCluster2,
                         memoryCapacityCluster2, service1, service2, cpuRequirementservice1, memoryRequirementservice1,
                         cpuRequirementservice2, memoryRequirementservice2)
-                .penalizesBy(3 * 2);
+                .penalizesBy(2 * 9);
     }
 
     @Test

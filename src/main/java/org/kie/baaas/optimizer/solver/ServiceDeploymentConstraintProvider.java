@@ -95,7 +95,10 @@ public class ServiceDeploymentConstraintProvider implements ConstraintProvider {
                         sumLong((pod, resourceCapacity, resourceRequirement) -> resourceRequirement.getAmount()))
                 .filter((cluster, resourceCapacity, usagePerCluster) -> usagePerCluster < resourceCapacity.getSafeCapacity())
                 .penalizeLong("antiLoadBalancing", HardMediumSoftLongScore.ONE_SOFT,
-                        (osdCluster, resourceCapacity, usagePerCluster) -> resourceCapacity.getSafeCapacity() - usagePerCluster);
+                        (osdCluster, resourceCapacity, usagePerCluster) -> {
+                            long difference = resourceCapacity.getSafeCapacity() - usagePerCluster;
+                            return difference * difference;
+                        });
     }
 
     Constraint balanceCost(ConstraintFactory constraintFactory) {

@@ -17,15 +17,15 @@ class ServiceSummaryGenerator {
      */
 
     // From 0.01 to 1 CPU
-    private static final ResourceValueDescriptor CPU = new ResourceValueDescriptor(10_000_000L, 1_000_000_000L);
+    private static final ResourceValueDescriptor CPU = new ResourceValueDescriptor(10_000L, 1_000_000L);
     // From 200 to 600 MB
-    private static final ResourceValueDescriptor MEMORY = new ResourceValueDescriptor(200_000_000L, 600_000_000L);
+    private static final ResourceValueDescriptor MEMORY = new ResourceValueDescriptor(200 * 1024, 600 * 1024);
 
     // TODO: Use network-related resources when the network capacity of a cluster can be calculated.
     // From 0 to 100 kB
-    private static final ResourceValueDescriptor NETWORK_IN = new ResourceValueDescriptor(0L, 100_000L);
+    private static final ResourceValueDescriptor NETWORK_IN = new ResourceValueDescriptor(0L, 100L);
     // From 0 to 500 kB
-    private static final ResourceValueDescriptor NETWORK_OUT = new ResourceValueDescriptor(0L, 500_000L);
+    private static final ResourceValueDescriptor NETWORK_OUT = new ResourceValueDescriptor(0L, 500L);
 
     private final Random random;
 
@@ -34,9 +34,9 @@ class ServiceSummaryGenerator {
     }
 
     ServiceSummary generateService() {
-        long cpuNanoCores = nextLong(CPU.minValue, CPU.maxValue);
-        long memoryBytes = nextLong(MEMORY.minValue, MEMORY.maxValue);
-        return new ServiceSummary(generateServiceName(), cpuNanoCores, memoryBytes);
+        long cpuMilliCores = nextLong(CPU.minValue, CPU.maxValue);
+        long memoryKBytes = nextLong(MEMORY.minValue, MEMORY.maxValue);
+        return new ServiceSummary(generateServiceName(), cpuMilliCores, memoryKBytes);
     }
 
     private String generateServiceName() {
