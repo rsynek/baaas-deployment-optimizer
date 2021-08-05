@@ -55,6 +55,8 @@ public class SolverOptimizationCommand implements Runnable {
 
         dataSet.setServiceDeploymentSchedule(solution);
         dataSetIO.write(createOutputFile(datasetFileName.getName()), dataSet);
+
+        PrintingUtil.printSolutionStatistics(solution);
     }
 
     private String createOutputFile(String inputFileName) {

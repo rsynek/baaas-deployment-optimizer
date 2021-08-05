@@ -27,10 +27,11 @@ import org.kie.baaas.optimizer.domain.ServiceDeploymentSchedule;
 public class DataSetGenerator {
 
     // Using milli cores to avoid losing precision.
-    private static final long CPU_CORES_MULTIPLIER = 1000_000L;
-    private static final long MEMORY_MULTIPLIER = 1024 * 1024;
-    private static final double RESOURCE_SAFE_CAPACITY_RATIO = 0.8;
-    private static final int EXCLUSIVE_CUSTOMER_SERVICE_MULTIPLIER = 10;
+    public static final long CPU_CORES_MULTIPLIER = 1000_000L;
+    public static final long MEMORY_MULTIPLIER = 1024 * 1024;
+    public static final double RESOURCE_SAFE_CAPACITY_RATIO = 0.8;
+    public static final int EXCLUSIVE_CUSTOMER_SERVICE_MULTIPLIER = 10;
+    public static final long COST_PRECISION_MULTIPLIER = 1000_000L;
     private final Random random = new Random();
     private final ClusterGenerator clusterGenerator = new ClusterGenerator(random);
     private final ServiceSummaryGenerator serviceSummaryGenerator = new ServiceSummaryGenerator(random);
@@ -215,7 +216,7 @@ public class DataSetGenerator {
     }
 
     private OsdCluster createOsdCluster(OpenShiftCluster openShiftCluster) {
-        return new OsdCluster(IdGenerator.nextId(), (long) (openShiftCluster.getCost() * 1000_000L), regionGenerator.generateRegion());
+        return new OsdCluster(IdGenerator.nextId(), (long) (openShiftCluster.getCost() * COST_PRECISION_MULTIPLIER), regionGenerator.generateRegion());
     }
 
     private List<ResourceCapacity> createResourceCapacities(List<OpenShiftNode> openShiftNodes, OsdCluster osdCluster) {

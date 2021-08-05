@@ -52,6 +52,8 @@ public class SolverInitializeCommand implements Runnable {
         } else {
             dataSetIO.write(createDefaultOutputFile(inputFile.getName()), dataSet);
         }
+
+        PrintingUtil.printSolutionStatistics(solution);
     }
 
     private void setOriginalClusterAssignments(ServiceDeploymentSchedule solution) {
@@ -74,6 +76,6 @@ public class SolverInitializeCommand implements Runnable {
 
     private String createDefaultOutputFile(String inputFileName) {
         int lastDotIndex = inputFileName.lastIndexOf('.');
-        return inputFileName.substring(0, lastDotIndex ) + "_initialized" + inputFileName.substring(lastDotIndex);
+        return inputFileName.substring(0, lastDotIndex) + "_initialized" + inputFileName.substring(lastDotIndex);
     }
 }
