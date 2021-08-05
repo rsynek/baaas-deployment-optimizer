@@ -44,7 +44,7 @@ class ServiceSummaryGenerator {
     }
 
     private long nextLong(long min, long max) {
-        return min + (long) (random.nextDouble() * (max - min));
+        return min + (long) Math.abs(random.nextGaussian() * (max - min));
     }
 
     private static final class ResourceValueDescriptor {
