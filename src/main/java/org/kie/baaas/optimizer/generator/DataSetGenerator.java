@@ -26,7 +26,7 @@ import org.kie.baaas.optimizer.domain.ServiceDeploymentSchedule;
 @ApplicationScoped
 public class DataSetGenerator {
 
-    // Using milli cores to avoid losing precision.
+    // Using micro cores to avoid losing precision.
     public static final long CPU_CORES_MULTIPLIER = 1000_000L;
     public static final long MEMORY_MULTIPLIER = 1024 * 1024;
     public static final double RESOURCE_SAFE_CAPACITY_RATIO = 0.8;
