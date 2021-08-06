@@ -50,10 +50,10 @@ public class SolverInitializeCommand implements Runnable {
         if (outputFile != null) {
             dataSetIO.write(outputFile, dataSet);
         } else {
-            dataSetIO.write(createDefaultOutputFile(inputFile.getName()), dataSet);
+            dataSetIO.write(createDefaultOutputFile(inputFile.getName(), dataSet), dataSet);
         }
 
-        PrintingUtil.printSolutionStatistics(solution);
+        PrintingUtil.printSolutionStatistics(dataSet);
     }
 
     private void setOriginalClusterAssignments(ServiceDeploymentSchedule solution) {
@@ -74,8 +74,9 @@ public class SolverInitializeCommand implements Runnable {
         return solverFactory.buildSolver();
     }
 
-    private String createDefaultOutputFile(String inputFileName) {
+    private String createDefaultOutputFile(String inputFileName, DataSet dataSet) {
+        String suffix = String.format("_%d_%.2f", dataSet.statistics().activeClusters(), dataSet.statistics().costPerHour());
         int lastDotIndex = inputFileName.lastIndexOf('.');
-        return inputFileName.substring(0, lastDotIndex) + "_initialized" + inputFileName.substring(lastDotIndex);
+        return inputFileName.substring(0, lastDotIndex) + "_simple" + suffix + inputFileName.substring(lastDotIndex);
     }
 }

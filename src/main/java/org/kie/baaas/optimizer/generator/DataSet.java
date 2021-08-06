@@ -5,9 +5,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.kie.baaas.optimizer.domain.OsdCluster;
 import org.kie.baaas.optimizer.domain.Resource;
 import org.kie.baaas.optimizer.domain.ResourceCapacity;
 import org.kie.baaas.optimizer.domain.ResourceRequirement;
+import org.kie.baaas.optimizer.domain.Service;
 import org.kie.baaas.optimizer.domain.ServiceDeploymentSchedule;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -23,6 +25,9 @@ public class DataSet {
      */
     private ServiceDeploymentSchedule serviceDeploymentSchedule;
 
+    @JsonIgnore
+    private Statistics statistics;
+
     public DataSet() {
         // Required by Jackson.
     }
@@ -32,37 +37,77 @@ public class DataSet {
         this.serviceDeploymentSchedule = serviceDeploymentSchedule;
     }
 
-    /**
-     * Calculates the resource utilization of the clusters by assigned services.
-     * @return list of {@link ResourceUtilization} entries.
-     */
-    @JsonIgnore
-    public List<ResourceUtilization> getResourceUtilizationList() {
-        Map<Resource, Long> totalCapacityPerResourceId = serviceDeploymentSchedule.getResourceCapacities().stream()
-                .collect(Collectors.groupingBy(ResourceCapacity::getResource,
-                        Collectors.summingLong(ResourceCapacity::getCapacity)));
+    public Statistics statistics() {
+        if (statistics == null) {
+            statistics = new Statistics();
+        }
+        return statistics;
+    }
 
-        Map<Resource, Long> totalRequirementPerResourceId = serviceDeploymentSchedule.getResourceRequirements().stream()
-                .collect(Collectors.groupingBy(ResourceRequirement::getResource,
-                        Collectors.summingLong(ResourceRequirement::getAmount)));
+    public List<OpenShiftCluster> getOpenShiftClusters() {
+        return openShiftClusters;
+    }
 
-        if (totalCapacityPerResourceId.size() != totalRequirementPerResourceId.size()) {
-            throw new IllegalStateException("The number of resources in resource requirements ("
-                    + totalRequirementPerResourceId.size()
-                    + ") does not match the number of resource in resource capacities ("
-                    + totalCapacityPerResourceId.size() + ").");
+    public ServiceDeploymentSchedule getServiceDeploymentSchedule() {
+        return serviceDeploymentSchedule;
+    }
+
+    public void setServiceDeploymentSchedule(ServiceDeploymentSchedule serviceDeploymentSchedule) {
+        this.serviceDeploymentSchedule = serviceDeploymentSchedule;
+    }
+
+    public class Statistics {
+
+        private Statistics() {
         }
 
-        List<ResourceUtilization> resourceUtilizationList = new ArrayList<>();
-        for (Map.Entry<Resource, Long> requirementEntry : totalRequirementPerResourceId.entrySet()) {
-            Resource resource = requirementEntry.getKey();
-            Long totalCapacity = totalCapacityPerResourceId.get(resource);
-            if (totalCapacity == null) {
-                throw new IllegalStateException("No capacity entry found for a resource (" + resource + ").");
+        public int activeClusters() {
+            return serviceDeploymentSchedule.getServices().stream()
+                    .filter(service -> service.getOsdCluster() != null)
+                    .collect(Collectors.groupingBy(Service::getOsdCluster)).size();
+        }
+
+        public double costPerHour() {
+            Map<OsdCluster, List<Service>> servicesByCluster = serviceDeploymentSchedule.getServices().stream()
+                    .filter(service -> service.getOsdCluster() != null)
+                    .collect(Collectors.groupingBy(Service::getOsdCluster));
+
+            double cost = ((double) servicesByCluster.keySet().stream()
+                    .collect(Collectors.summingLong(OsdCluster::getCostPerHour))) / DataSetGenerator.COST_PRECISION_MULTIPLIER;
+            return cost;
+        }
+
+        /**
+         * Calculates the resource utilization of the clusters by assigned services.
+         * @return list of {@link ResourceUtilization} entries.
+         */
+        public List<ResourceUtilization> getResourceUtilizationList() {
+            Map<Resource, Long> totalCapacityPerResourceId = serviceDeploymentSchedule.getResourceCapacities().stream()
+                    .collect(Collectors.groupingBy(ResourceCapacity::getResource,
+                            Collectors.summingLong(ResourceCapacity::getCapacity)));
+
+            Map<Resource, Long> totalRequirementPerResourceId = serviceDeploymentSchedule.getResourceRequirements().stream()
+                    .collect(Collectors.groupingBy(ResourceRequirement::getResource,
+                            Collectors.summingLong(ResourceRequirement::getAmount)));
+
+            if (totalCapacityPerResourceId.size() != totalRequirementPerResourceId.size()) {
+                throw new IllegalStateException("The number of resources in resource requirements ("
+                        + totalRequirementPerResourceId.size()
+                        + ") does not match the number of resource in resource capacities ("
+                        + totalCapacityPerResourceId.size() + ").");
             }
-            resourceUtilizationList.add(new ResourceUtilization(resource, totalCapacity, requirementEntry.getValue()));
+
+            List<ResourceUtilization> resourceUtilizationList = new ArrayList<>();
+            for (Map.Entry<Resource, Long> requirementEntry : totalRequirementPerResourceId.entrySet()) {
+                Resource resource = requirementEntry.getKey();
+                Long totalCapacity = totalCapacityPerResourceId.get(resource);
+                if (totalCapacity == null) {
+                    throw new IllegalStateException("No capacity entry found for a resource (" + resource + ").");
+                }
+                resourceUtilizationList.add(new ResourceUtilization(resource, totalCapacity, requirementEntry.getValue()));
+            }
+            return resourceUtilizationList;
         }
-        return resourceUtilizationList;
     }
 
     public static final class ResourceUtilization {
@@ -83,17 +128,5 @@ public class DataSet {
         public Resource getResource() {
             return this.resource;
         }
-    }
-
-    public List<OpenShiftCluster> getOpenShiftClusters() {
-        return openShiftClusters;
-    }
-
-    public ServiceDeploymentSchedule getServiceDeploymentSchedule() {
-        return serviceDeploymentSchedule;
-    }
-
-    public void setServiceDeploymentSchedule(ServiceDeploymentSchedule serviceDeploymentSchedule) {
-        this.serviceDeploymentSchedule = serviceDeploymentSchedule;
     }
 }

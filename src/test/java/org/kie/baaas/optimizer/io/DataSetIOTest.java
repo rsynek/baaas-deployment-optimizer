@@ -32,7 +32,7 @@ class DataSetIOTest {
         Assertions.assertThat(dataSet.getOpenShiftClusters()).hasSize(expectedClusterCount);
         assertThat(dataSet.getServiceDeploymentSchedule().getOsdClusters()).hasSize(expectedClusterCount);
         assertThat(dataSet.getServiceDeploymentSchedule().getServices()).hasSize(12);
-        List<DataSet.ResourceUtilization> resourceUtilizationList = dataSet.getResourceUtilizationList();
+        List<DataSet.ResourceUtilization> resourceUtilizationList = dataSet.statistics().getResourceUtilizationList();
         assertThat(resourceUtilizationList).hasSize(2);
         assertThat(resourceUtilizationList.get(0).utilization()).isBetween(0.0, 0.3);
         assertThat(resourceUtilizationList.get(1).utilization()).isBetween(0.0, 0.3);

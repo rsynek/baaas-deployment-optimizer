@@ -54,13 +54,14 @@ public class SolverOptimizationCommand implements Runnable {
         }
 
         dataSet.setServiceDeploymentSchedule(solution);
-        dataSetIO.write(createOutputFile(datasetFileName.getName()), dataSet);
+        dataSetIO.write(createOutputFile(datasetFileName.getName(), dataSet), dataSet);
 
-        PrintingUtil.printSolutionStatistics(solution);
+        PrintingUtil.printSolutionStatistics(dataSet);
     }
 
-    private String createOutputFile(String inputFileName) {
+    private String createOutputFile(String inputFileName, DataSet dataSet) {
+        String suffix = String.format("_%d_%.2f", dataSet.statistics().activeClusters(), dataSet.statistics().costPerHour());
         int lastDotIndex = inputFileName.lastIndexOf('.');
-        return inputFileName.substring(0, lastDotIndex) + "_solved" + inputFileName.substring(lastDotIndex);
+        return inputFileName.substring(0, lastDotIndex) + "_optimized" + suffix + inputFileName.substring(lastDotIndex);
     }
 }
