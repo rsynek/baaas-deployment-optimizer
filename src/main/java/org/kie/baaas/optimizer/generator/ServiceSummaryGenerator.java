@@ -34,9 +34,9 @@ class ServiceSummaryGenerator {
     }
 
     ServiceSummary generateService() {
-        long cpuMilliCores = nextLong(CPU.minValue, CPU.maxValue);
+        long cpuMicroCores = nextLong(CPU.minValue, CPU.maxValue);
         long memoryKBytes = nextLong(MEMORY.minValue, MEMORY.maxValue);
-        return new ServiceSummary(generateServiceName(), cpuMilliCores, memoryKBytes);
+        return new ServiceSummary(generateServiceName(), cpuMicroCores, memoryKBytes);
     }
 
     private String generateServiceName() {
@@ -44,7 +44,7 @@ class ServiceSummaryGenerator {
     }
 
     private long nextLong(long min, long max) {
-        return min + (long) Math.abs(random.nextGaussian() * (max - min));
+        return min + (long) Math.abs(random.nextDouble() * (max - min));
     }
 
     private static final class ResourceValueDescriptor {

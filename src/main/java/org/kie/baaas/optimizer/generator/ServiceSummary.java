@@ -2,12 +2,12 @@ package org.kie.baaas.optimizer.generator;
 
 public class ServiceSummary {
     private String name;
-    private long cpuMilliCoresUsage;
+    private long cpuMicroCoresUsage;
     private long memoryKBytesUsage;
 
-    public ServiceSummary(String name, long cpuMilliCoresUsage, long memoryKBytesUsage) {
+    public ServiceSummary(String name, long cpuMicroCoresUsage, long memoryKBytesUsage) {
         this.name = name;
-        this.cpuMilliCoresUsage = cpuMilliCoresUsage;
+        this.cpuMicroCoresUsage = cpuMicroCoresUsage;
         this.memoryKBytesUsage = memoryKBytesUsage;
     }
 
@@ -15,8 +15,8 @@ public class ServiceSummary {
         return name;
     }
 
-    public long getCpuMilliCoresUsage() {
-        return cpuMilliCoresUsage;
+    public long getCpuMicroCoresUsage() {
+        return cpuMicroCoresUsage;
     }
 
     public long getMemoryKBytesUsage() {

@@ -196,7 +196,7 @@ public class DataSetGenerator {
     }
 
     private List<ResourceRequirement> createResourceRequirements(ServiceSummary serviceSummary, Service service) {
-        ResourceRequirement cpuRequirement = new ResourceRequirement(IdGenerator.nextId(), service, cpuResource, serviceSummary.getCpuMilliCoresUsage());
+        ResourceRequirement cpuRequirement = new ResourceRequirement(IdGenerator.nextId(), service, cpuResource, serviceSummary.getCpuMicroCoresUsage());
         ResourceRequirement memoryRequirement = new ResourceRequirement(IdGenerator.nextId(), service, memoryResource, serviceSummary.getMemoryKBytesUsage());
         return Arrays.asList(cpuRequirement, memoryRequirement);
     }
