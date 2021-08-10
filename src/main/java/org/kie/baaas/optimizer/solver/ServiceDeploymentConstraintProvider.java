@@ -23,8 +23,9 @@ public class ServiceDeploymentConstraintProvider implements ConstraintProvider {
                 serviceMoveCost(constraintFactory),
                 clusterCost(constraintFactory),
                 antiLoadBalancing(constraintFactory),
-                matchingRegion(constraintFactory),
-                exclusiveCluster(constraintFactory),
+                // TODO: enable when these constraints are clearly defined.
+                //matchingRegion(constraintFactory),
+                //exclusiveCluster(constraintFactory),
                 assignServices(constraintFactory)
         };
     }
