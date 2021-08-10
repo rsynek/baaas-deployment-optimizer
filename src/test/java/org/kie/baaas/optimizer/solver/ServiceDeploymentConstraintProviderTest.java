@@ -1,7 +1,5 @@
 package org.kie.baaas.optimizer.solver;
 
-import java.util.Arrays;
-
 import javax.inject.Inject;
 
 import org.junit.jupiter.api.Test;
@@ -9,7 +7,6 @@ import org.kie.baaas.optimizer.domain.Customer;
 import org.kie.baaas.optimizer.domain.OsdCluster;
 import org.kie.baaas.optimizer.domain.Region;
 import org.kie.baaas.optimizer.domain.Resource;
-import org.kie.baaas.optimizer.domain.ResourceBalance;
 import org.kie.baaas.optimizer.domain.ResourceCapacity;
 import org.kie.baaas.optimizer.domain.ResourceRequirement;
 import org.kie.baaas.optimizer.domain.Service;
@@ -174,47 +171,5 @@ public class ServiceDeploymentConstraintProviderTest {
                         memoryCapacityCluster2, service1, service2, cpuRequirementservice1, memoryRequirementservice1,
                         cpuRequirementservice2, memoryRequirementservice2)
                 .penalizesBy(2 * 9);
-    }
-
-    @Test
-    void balanceCost() {
-        Resource cpu = new Resource(1L, 0, 0.8);
-        Resource memory = new Resource(2L, 1, 0.8);
-
-        ResourceBalance resourceBalance = new ResourceBalance(1L, cpu, memory, 4);
-
-        OsdCluster cluster1 = new OsdCluster(1L, 5, null);
-        OsdCluster cluster2 = new OsdCluster(2L, 5, null);
-
-        ResourceCapacity cpuCapacityCluster1 = new ResourceCapacity(cluster1, cpu, 10L);
-        ResourceCapacity memoryCapacityCluster1 = new ResourceCapacity(cluster1, memory, 40L);
-        ResourceCapacity cpuCapacityCluster2 = new ResourceCapacity(cluster2, cpu, 10L);
-        ResourceCapacity memoryCapacityCluster2 = new ResourceCapacity(cluster2, memory, 40L);
-
-        cluster1.setResourceCapacities(Arrays.asList(cpuCapacityCluster1, memoryCapacityCluster1));
-        cluster2.setResourceCapacities(Arrays.asList(cpuCapacityCluster2, memoryCapacityCluster2));
-
-        Service service1 = new Service(1L, "decision1", null);
-        Service service2 = new Service(2L, "decision2", null);
-
-        service1.setOsdCluster(cluster1);
-        service2.setOsdCluster(cluster2);
-
-        // The service1 keeps the resource on the cluster1 in balance that corresponds to the multiplicand (1:4)
-        ResourceRequirement cpuRequirementservice1 = new ResourceRequirement(service1, cpu, 1L);
-        ResourceRequirement memoryRequirementservice1 = new ResourceRequirement(service1, memory, 4L);
-
-        // The service2 breaks the balance, as the remaining resources are not in the ratio defined by ResourceBalance.
-        ResourceRequirement cpuRequirementservice2 = new ResourceRequirement(service2, cpu, 1L);
-        ResourceRequirement memoryRequirementservice2 = new ResourceRequirement(service2, memory, 8L);
-
-        service1.setResourceRequirements(Arrays.asList(cpuRequirementservice1, memoryRequirementservice1));
-        service2.setResourceRequirements(Arrays.asList(cpuRequirementservice2, memoryRequirementservice2));
-
-        constraintVerifier.verifyThat(ServiceDeploymentConstraintProvider::balanceCost)
-                .given(cpu, memory, resourceBalance, cluster1, cluster2, cpuCapacityCluster1, memoryCapacityCluster1,
-                        cpuCapacityCluster2, memoryCapacityCluster2, service1, service2, cpuRequirementservice1,
-                        memoryRequirementservice1, cpuRequirementservice2, memoryRequirementservice2)
-                .penalizesBy(4);
     }
 }

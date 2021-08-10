@@ -25,7 +25,6 @@ public class ServiceDeploymentConstraintProvider implements ConstraintProvider {
                 antiLoadBalancing(constraintFactory),
                 matchingRegion(constraintFactory),
                 exclusiveCluster(constraintFactory),
-                balanceCost(constraintFactory),
                 assignServices(constraintFactory)
         };
     }
@@ -99,18 +98,6 @@ public class ServiceDeploymentConstraintProvider implements ConstraintProvider {
                             long difference = resourceCapacity.getSafeCapacity() - usagePerCluster;
                             return difference * difference;
                         });
-    }
-
-    Constraint balanceCost(ConstraintFactory constraintFactory) {
-        return constraintFactory.from(ResourceBalance.class)
-                .join(constraintFactory.from(Service.class)
-                        .filter(service -> service.getOsdCluster() != SINK)
-                )
-                .groupBy((resourceBalance, service) -> resourceBalance,
-                        (resourceBalance, service) -> service.getOsdCluster(),
-                        sumLong((resourceBalance, service) -> service.getUsage(resourceBalance.getOriginResource())),
-                        sumLong((resourceBalance, service) -> service.getUsage(resourceBalance.getTargetResource())))
-                .penalizeLong("balanceCost", HardMediumSoftLongScore.ONE_SOFT, this::balanceCost);
     }
 
     private long balanceCost(ResourceBalance resourceBalance, OsdCluster osdCluster, long originUsage, long targetUsage) {
