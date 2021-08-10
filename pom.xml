@@ -14,6 +14,7 @@
   <properties>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
+    <version.io.quarkus>2.1.1.Final</version.io.quarkus>
   </properties>
 
   <dependencyManagement>
@@ -21,14 +22,14 @@
       <dependency>
         <groupId>io.quarkus</groupId>
         <artifactId>quarkus-bom</artifactId>
-        <version>1.13.4.Final</version>
+        <version>${version.io.quarkus}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
       <dependency>
         <groupId>org.optaplanner</groupId>
         <artifactId>optaplanner-bom</artifactId>
-        <version>8.7.0.Final</version>
+        <version>8.9.0.Final</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -99,7 +100,7 @@
       <plugin>
         <groupId>io.quarkus</groupId>
         <artifactId>quarkus-maven-plugin</artifactId>
-        <version>1.13.4.Final</version>
+        <version>${version.io.quarkus}</version>
         <executions>
           <execution>
             <goals>
